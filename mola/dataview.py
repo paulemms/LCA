@@ -12,10 +12,21 @@ from mola.dataimport import get_sqlite_connection
 
 get_sqlite_connection = get_sqlite_connection
 
-def get_df(conn, q, chunk_size=None):
+
+def get_df(conn, q, chunk_size=None, index_col=None):
+    """
+    Get dataframe from database using query string.
+    Wrapper function to display the built SQL query if desired.
+
+    :param sqlite3.Connection conn: database connection
+    :param str q: query string
+    :param int chunk_size: number of rows to include in each chunk
+    :param str index_col: column name to set as index
+    :return: Dataframe
+    """
     if Package.config('show.SQL'):
         print(q)
-    df = pd.read_sql(str(q), conn, chunksize=chunk_size)
+    df = pd.read_sql(str(q), conn, index_col=index_col, chunksize=chunk_size)
     return df
 
 
@@ -65,9 +76,8 @@ def get_ref_ids(conn, ids, table_name):
     """
     tbl = Table(table_name)
     q = tbl.select(tbl.REF_ID).where(tbl.ID.isin(ids))
-    # TODO: update these calls to use get_df
-    dfr = pd.read_sql(str(q), conn).to_dict('list')
-    return dfr
+    dfr = get_df(conn, q)
+    return dfr.to_dict('list')
 
 
 def get_ids(conn, ref_ids, table_name):
@@ -82,13 +92,13 @@ def get_ids(conn, ref_ids, table_name):
         ref_ids = [ref_ids]
     tbl = Table(table_name)
     q = tbl.select(tbl.ID, tbl.REF_ID).where(tbl.REF_ID.isin(ref_ids))
-    dfr = pd.read_sql(str(q), conn)
+    dfr = get_df(conn, q)
     return dict(zip(dfr.ID, dfr.REF_ID))
 
 
 def get_ref_id_dicts(conn, table_dict):
     """
-    Get distionary of ref id -> name for each table in table_dict
+    Get dictionary of ref id -> name for each table in table_dict
     :param conn: database connection
     :param table_dict: dict of table names
     :return: dictionary using keys of table_dict
@@ -99,8 +109,8 @@ def get_ref_id_dicts(conn, table_dict):
         q = Query \
             .from_(tbl) \
             .select(tbl.REF_ID, tbl.NAME)
-        print(q)
-        d[k] = pd.read_sql(str(q), conn, index_col='REF_ID').to_dict()['NAME']
+        dfr = get_df(conn, q, index_col='REF_ID')
+        d[k] = dfr.to_dict()['NAME']
 
     # additional mappings
     tbl = Table('TBL_FLOWS')
@@ -108,8 +118,8 @@ def get_ref_id_dicts(conn, table_dict):
         .from_(tbl) \
         .select(tbl.REF_ID, tbl.NAME) \
         .where(tbl.FLOW_TYPE == 'PRODUCT_FLOW')
-    print(q)
-    d['product_flows'] = pd.read_sql(str(q), conn, index_col='REF_ID').to_dict()['NAME']
+    dfr = get_df(conn, q, index_col='REF_ID')
+    d['product_flows'] = dfr.to_dict()['NAME']
 
     return d
 
@@ -132,14 +142,14 @@ def get_lookup_tables(conn, single_column=False):
         q = Query \
             .from_(tbl) \
             .select(tbl.REF_ID, tbl.NAME)
-        d[k] = pd.read_sql(str(q), conn, index_col='REF_ID')
+        d[k] = get_df(conn, q, index_col='REF_ID')
 
     # flows
     flows = Table('TBL_FLOWS')
     q = Query \
         .from_(flows) \
         .select(flows.REF_ID.as_('FLOW_REF_ID'), flows.NAME)
-    d['flows'] = pd.read_sql(str(q), conn, index_col='FLOW_REF_ID')
+    d['flows'] = get_df(conn, q, index_col='FLOW_REF_ID')
 
     # processes
     processes = Table('TBL_PROCESSES')
@@ -149,7 +159,7 @@ def get_lookup_tables(conn, single_column=False):
         .left_join(locations).on(pf.Cast(processes.F_LOCATION, 'int') == locations.ID) \
         .select(processes.REF_ID.as_('PROCESS_REF_ID'), processes.NAME.as_('PROCESS_NAME'),
                 locations.NAME.as_('LOCATION_NAME'))  # FIXME
-    d['processes'] = pd.read_sql(str(q), conn, index_col='PROCESS_REF_ID')
+    d['processes'] = get_df(conn, q, index_col='PROCESS_REF_ID')
     d['P'] = d['P_m'] = d['P_s'] = d['P_t'] = d['processes']
 
     # product flows
@@ -158,7 +168,7 @@ def get_lookup_tables(conn, single_column=False):
         .from_(flows) \
         .select(flows.REF_ID, flows.NAME) \
         .where(flows.FLOW_TYPE == 'PRODUCT_FLOW')
-    d['product_flows'] = pd.read_sql(str(q), conn, index_col='REF_ID')
+    d['product_flows'] = get_df(conn, q, index_col='REF_ID')
     d['F'] = d['F_m'] = d['F_s'] = d['F_t'] = d['product_flows']
 
     # impact categories
@@ -172,7 +182,7 @@ def get_lookup_tables(conn, single_column=False):
             categories.REF_ID.as_('REF_ID'), categories.NAME.as_('Category'),
             categories.REFERENCE_UNIT.as_('Unit')
         )
-    d['KPI'] = pd.read_sql(str(q), conn, index_col='REF_ID')
+    d['KPI'] = get_df(conn, q, index_col='REF_ID')
 
     # only return a single joined column in data frame
     if single_column:
@@ -201,9 +211,7 @@ def get_exchanges(conn, id, columns=['ID', 'F_OWNER', 'F_FLOW', 'F_UNIT', 'RESUL
         .from_(exchanges) \
         .select(*columns) \
         .where(exchanges.ID == id)
-    sql_stmt = str(q)
-    print(sql_stmt)
-    dfr = pd.read_sql(sql_stmt, conn)
+    dfr = get_df(conn, q)
 
     return dfr
 
@@ -290,8 +298,7 @@ def get_process_elementary_flow(conn, ref_ids=None, units=True, limit_exchanges=
         .where(flows.FlOW_TYPE == 'ELEMENTARY_FLOW')
 
     # get elementary exchanges using left join with flow table
-    print(q)
-    elementary_exchanges_dfr = pd.read_sql(str(q), conn)
+    elementary_exchanges_dfr = get_df(conn, q)
 
     # spread table to row column format
     # row ids are the elementary flow ids, columns are process owning exchange containing the flow
@@ -344,8 +351,7 @@ def get_product_flow_in_process(conn, product_id=None, limit_exchanges=None):
             flows.NAME.as_('FLOW_NAME'), processes.F_LOCATION.as_('PROCESS_LOCATION')
         )
 
-    print(q)
-    process_exchanges_dfr = pd.read_sql(str(q), conn)
+    process_exchanges_dfr = get_df(conn, q)
 
     return process_exchanges_dfr
 
@@ -384,8 +390,7 @@ def get_impact_category_elementary_flow(conn, ref_ids=None, units=True):
             impact_factors.VALUE, impact_factors.F_UNIT
         )
 
-    print(q)
-    impact_factors_dfr = pd.read_sql(str(q), conn)
+    impact_factors_dfr = get_df(conn, q)
 
     # pivot the impact factors table, rows are elementary flow REF_IDS,
     # columns are impact category REF_IDs with unit
@@ -421,10 +426,8 @@ def get_elementary_flows(conn, columns=['ID', 'REF_ID', 'NAME']):
         .from_(flows) \
         .select(*columns) \
         .where(flows.FLOW_TYPE == 'ELEMENTARY_FLOW')
-    print(q)
-    elementary_flows_dfr = pd.read_sql(str(q), conn)
 
-    return elementary_flows_dfr
+    return get_df(conn, q)
 
 
 def get_process_ref_ids(conn, name=None, location=None):
@@ -465,8 +468,7 @@ def get_processes(conn, name=None, location=None,
     if location:
         q = q.where(Criterion.any([locations.NAME.like(p) for p in location]))
 
-    print(q)
-    processes_dfr = pd.read_sql(str(q), conn)
+    processes_dfr = get_df(conn, q)
 
     return processes_dfr
 
