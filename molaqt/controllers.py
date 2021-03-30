@@ -32,15 +32,17 @@ class Controller(QWidget):
         self.parameters.update(user_config['parameters'])
 
         # if we need a db get lookups
-        self.db_file = user_config['db_file']
         lookup_sets = [n for n, d in self.spec.user_defined_sets.items() if 'lookup' in d and d['lookup']]
-        if len(lookup_sets) > 0:
+        if len(lookup_sets) > 0 and 'db_file' in user_config:
+            self.db_file = user_config['db_file']
+
             # instantiate db connection from config
             self.conn = di.get_sqlite_connection(self.db_file)
 
             # get lookups from db
             self.lookup = dv.LookupTables(self.conn)
         else:
+            self.db_file = None
             self.lookup = dict()
 
     def get_config(self):

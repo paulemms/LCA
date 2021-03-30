@@ -44,10 +44,13 @@ class ModelManager(QWidget):
         self.delete_model_action.triggered.connect(self.delete_model)
         self.db_tree.addAction(self.delete_model_action)
 
-        # find the user sqlite databases and add them to db tree
+        # model configurations that don't use a database
+        self.no_db = QTreeWidgetItem(self.db_tree, ['None'])
+        self.no_db.setExpanded(True)
+
+        # find the user sqlite databases and add them to db_tree
         self.db_items = {}
         db_files = list(system['data_path'].glob('*.sqlite'))
-        # TODO allow a None database for models that don't use database data
         for db_file in db_files:
             self.db_items[db_file] = QTreeWidgetItem(self.db_tree, [db_file.stem])
             self.db_items[db_file].setExpanded(True)
@@ -61,6 +64,8 @@ class ModelManager(QWidget):
                 config_db = Path(config_json['db_file'])
                 if config_db.exists():
                     config_item.append(QTreeWidgetItem(self.db_items[config_db], [cf.stem]))
+            else:
+                config_item.append(QTreeWidgetItem(self.no_db, [cf.stem]))
 
         # arrange widgets in splitter
         box = QHBoxLayout()

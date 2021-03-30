@@ -22,18 +22,17 @@ class NewModelDialog(QDialog):
             "StandardController": mqc.StandardController,
             "CustomController": mqc.CustomController}
 
+        # databases combobox
+        self.database = QComboBox(self)
+        self.db_files = {f.stem: f for f in db_files}
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+
         # specification combobox
         self.specification = QComboBox(self)
         self.specification.currentIndexChanged.connect(self.specification_changed)
         self.specifications = {cls.name: cls for cls in ms.Specification.__subclasses__()}
         for spec in self.specifications:
             self.specification.addItem(spec)
-
-        # add databases to combobox
-        self.database = QComboBox(self)
-        self.db_files = {f.stem: f for f in db_files if f != 'None'}
-        self.database.addItems(self.db_files.keys())
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
 
         # documentation
         self.doc_widget = DocWidget()
@@ -53,21 +52,31 @@ class NewModelDialog(QDialog):
         spec_name = list(self.specifications.keys())
         spec_class = list(self.specifications.values())
         print("Specification changed to", spec_name[index])
+
+        # populate builder dropdown
         self.builder.clear()
         self.builders = spec_class[index].controllers
         for builder in self.builders:
             self.builder.addItem(builder)
+
+        # populate database dropdown
+        self.database.clear()
+        if 'no_db_required' in spec_class[index].__dict__:
+            self.database.addItem('None')
+        else:
+            self.database.addItems(self.db_files.keys())
 
     def get_inputs(self):
         spec_class = list(self.specifications.values())
         builder_text = list(self.builders.values())
         current_spec_class = spec_class[self.specification.currentIndex()]
         current_builder_class = self.builder_class[builder_text[self.builder.currentIndex()]]
+        current_db = None if self.database.currentText() == 'None' else self.db_files[self.database.currentText()]
         return (
             self.name.text(),
             current_spec_class,
             current_builder_class,
-            self.db_files[self.database.currentText()],
+            current_db,
             self.doc_widget.path.text()
         )
 

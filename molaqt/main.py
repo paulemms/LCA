@@ -170,7 +170,7 @@ class MolaMainWindow(QMainWindow):
                     if database:
                         item = QTreeWidgetItem(self.manager.db_items[database], [config_file.stem])
                     else:
-                        item = QTreeWidgetItem(self.manager.db_items['None'], [config_file.stem])
+                        item = QTreeWidgetItem(self.manager.no_db, [config_file.stem])
                     self.manager.db_tree.clearSelection()
                     item.setSelected(True)
                     self.manager.new_model(config_file, specification_class, controller_class, database, doc_file)

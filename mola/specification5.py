@@ -829,6 +829,7 @@ class AIMMSExampleSpecification(Specification):
     controllers = {"Standard": "StandardController"}
     default_settings = {
     }
+    no_db_required = True
 
     def __init__(self):
 
@@ -931,6 +932,7 @@ class KondiliSpecification(Specification):
     controllers = {"Standard": "StandardController"}
     default_settings = {
     }
+    no_db_required = True
 
     def __init__(self):
 
