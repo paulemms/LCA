@@ -3,8 +3,7 @@
 ## Repository Structure
 
 General information on the project is contained in the 
-[wiki](wiki). There is an 
-[Installation Guide](INSTALL.md) for Windows.
+[wiki](../wiki). There is an [Installation Guide](INSTALL.md) for Windows.
 
 The code repository contains two Python
 packages and a collection of Jupyter Notebooks.
