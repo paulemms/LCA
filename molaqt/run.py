@@ -8,7 +8,7 @@ import pandas as pd
 
 import mola.output as mo
 import molaqt.datamodel as md
-from molaqt.dialogs import critical_error_box
+import molaqt.dialogs as mdg
 
 
 class ModelRun(QWidget):
@@ -112,7 +112,7 @@ class ModelRun(QWidget):
                 log_item = QTreeWidgetItem(self.run_tree, ['Log'])
                 self.run_tree.expandAll()
             except Exception as e:
-                self.dlg = critical_error_box("Uncaught exception for model run", str(e), traceback.format_exc())
+                self.dlg = mdg.critical_error_box("Uncaught exception for model run", str(e), traceback.format_exc())
                 self.dlg.show()
         else:
             print("No successful build")

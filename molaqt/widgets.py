@@ -687,13 +687,13 @@ class LinkingParameterWidget(QWidget):
 
 class AboutWidget(QWidget):
 
-    def __init__(self, settings):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle("MolaQT: Mathematical Optimisation of Lifecycle Assessment Models")
 
         # widgets
         label = QLabel()
-        pixmap = QPixmap(str(settings['package_path'].joinpath(":Sunfish2.jpg")))
+        pixmap = QPixmap(":/Sunfish2.jpg")
         pixmap = pixmap.scaledToWidth(800)
         # painter = QPainter(pixmap)
         # painter.setFont(QFont("Arial"));

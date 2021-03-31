@@ -8,7 +8,8 @@ the latest versions of Anaconda3, PyCharm and Git installed on your machine.
 Mola uses an Ecoinvent database converted from Apache Derby to sqlite. The script to do
 the conversion can be found in the file `mola\scripts\derby_export_import.py`. The paths at the top
  of the file show the expected location of Derby Databases, Derby drivers, and output files. The Derby drivers can be
- found at http://db.apache.org/derby/
+ found at http://db.apache.org/derby/. You need to have a compatible version of Java installed to make use of the Derby
+drivers. Currently, OpenJDK 11 binaries available at https://adoptopenjdk.net/ are used.
 
 It takes about an hour to convert the full Ecoinvent database to sqlite, so it is simplest to use the pre-built version
 called CSV_juice_ecoinvent_36_apos_lci_20200206_20201029-102818.zip

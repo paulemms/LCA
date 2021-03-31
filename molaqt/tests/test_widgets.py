@@ -8,10 +8,12 @@ from pathlib import Path
 import pandas as pd
 from PyQt5.QtWidgets import QApplication
 
+
 import mola.dataimport as di
 import mola.dataview as dv
-import molaqt.utils as mqu
 import mola.build as mb
+import molaqt.qrc_resources
+import molaqt.utils as mqu
 import molaqt.widgets as mw
 
 app = QApplication(sys.argv)
@@ -88,7 +90,7 @@ class Widgets(TestCase):
         self.assertIsInstance(config_widget, mw.ConfigurationWidget)
 
     def test_about_widget(self):
-        about_widget = mw.AboutWidget(mqu.system_settings(testing=True))
+        about_widget = mw.AboutWidget()
         about_widget.show()
 
         if 'IGNORE_EXEC' not in os.environ:

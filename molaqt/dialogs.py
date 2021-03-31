@@ -25,7 +25,7 @@ class NewModelDialog(QDialog):
         # databases combobox
         self.database = QComboBox(self)
         self.db_files = {f.stem: f for f in db_files}
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
 
         # specification combobox
         self.specification = QComboBox(self)
@@ -43,10 +43,10 @@ class NewModelDialog(QDialog):
         layout.addRow("Controller", self.builder)
         layout.addRow("Database", self.database)
         layout.addRow("Documentation", self.doc_widget)
-        layout.addWidget(button_box)
+        layout.addWidget(self.button_box)
 
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
 
     def specification_changed(self, index):
         spec_name = list(self.specifications.keys())

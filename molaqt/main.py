@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QMessageBox, QAction, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
-import qrc_resources
+import molaqt.qrc_resources
 import molaqt.dbview as dbv
 import molaqt.manager as mt
 import molaqt.dialogs as md
@@ -107,7 +107,7 @@ class MolaMainWindow(QMainWindow):
         webbrowser.open(url, new=2)  # new tab
 
     def about(self):
-        self.about_widget = mw.AboutWidget(self.system)
+        self.about_widget = mw.AboutWidget()
 
     def console(self):
         self.qt_console = QtConsoleWindow(self.manager)
