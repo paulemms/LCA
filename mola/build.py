@@ -47,23 +47,15 @@ def get_config(json_file_name):
     return config
 
 
-def build_instance(config, settings=None):
+def config_to_json(config):
     """
-    Build a model instance from a configuration dictionary using configuration settings.
+    Extract the sets and parameters from a mola configuration file and save them to temporary json files.
 
-    The config dict contains a specification settings key, but these are the values on disk.
-    The settings dict reflects updated settings in the current python session.
+    A pyomo DataPortal uses json files to load data so we need this intermediate step.
 
     :param config: dict of configuration data
-    :param settings: dict of specification settings
-    :return: concreteModel
+    :return: list of temporary json files
     """
-    # create a Specification object using configuration settings in config if settings is None
-    if settings is None and 'settings' in config:
-        settings = config['settings']
-    spec = create_specification(config['specification'], settings)
-
-    # write out temp json files for sets, indexed sets and parameters for DataPortal
     sets_json = NamedTemporaryFile(suffix='.json', delete=False)
     indexed_sets_json = NamedTemporaryFile(suffix='.json', delete=False)
     parameters_json = NamedTemporaryFile(suffix='.json', delete=False)
@@ -81,9 +73,28 @@ def build_instance(config, settings=None):
     indexed_sets_json.close()
     parameters_json.close()
 
-    # populate sets and parameters using DataPortal and temp files
-    concrete_model = spec.populate(json_list)
+    return json_list
 
+
+def build_instance(config, settings=None):
+    """
+    Build a model instance from a configuration dictionary using configuration settings.
+
+    The config dict contains a specification settings key, but these are the values on disk.
+    The settings dict reflects updated settings in the current python session.
+
+    :param config: dict of configuration data
+    :param settings: dict of specification settings
+    :return: concreteModel
+    """
+    # create a Specification object using configuration settings in config if settings is None
+    if settings is None and 'settings' in config:
+        settings = config['settings']
+    spec = create_specification(config['specification'], settings)
+
+    # populate sets and parameters using DataPortal and temp files
+    json_list = config_to_json(config)
+    concrete_model = spec.populate(json_list)
 
     return concrete_model
 

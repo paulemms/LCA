@@ -1081,7 +1081,6 @@ class KondiliSpecification(Specification):
         abstract_model.material_balances = pe.Constraint(abstract_model.States, abstract_model.T,
                                                          rule=material_balances_rule)
 
-
     def populate(self, json_files=None, elementary_flow_ref_ids=None, db_file=None):
 
         olca_dp = pyod.DataPortal()
