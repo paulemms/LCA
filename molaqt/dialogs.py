@@ -30,7 +30,8 @@ class NewModelDialog(QDialog):
         # specification combobox
         self.specification = QComboBox(self)
         self.specification.currentIndexChanged.connect(self.specification_changed)
-        self.specifications = {cls.name: cls for cls in ms.Specification.__subclasses__()}
+        self.specifications = {cls.name: cls for cls in ms.Specification.__subclasses__()
+                               if 'no_db_required' in cls.__dict__ or len(db_files) > 0}
         for spec in self.specifications:
             self.specification.addItem(spec)
 

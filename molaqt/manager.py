@@ -13,7 +13,7 @@ from molaqt.console import QtConsoleWindow
 
 class ModelManager(QWidget):
     """
-    The main window for MolaQT. It manages optimisation models using an openLCA database.
+    The main window for MolaQT. It manages optimisation models optionally using an openLCA database.
     """
 
     def __init__(self, system):
@@ -83,17 +83,71 @@ class ModelManager(QWidget):
             print('Loading model', config_file)
             self.set_controller(config_file.with_suffix('.json'))
 
-    def new_model(self, config_file, specification_class, controller_class, database, doc_file):
-        self.controller_config_file = config_file
+    def new_model(self):
+        dialog = md.NewModelDialog(parent=self, db_files=self.db_items.keys())
+        if dialog.exec():
+            name, specification_class, controller_class, database, doc_file = dialog.get_inputs()
+            config_file = self.system['config_path'].joinpath(name + '.json')
+            if config_file.exists():
+                QMessageBox.about(self, "Error", "Configuration file " + str(config_file.absolute()) +
+                                  " already exists")
+            else:
+                if database:
+                    item = QTreeWidgetItem(self.db_items[database], [config_file.stem])
+                else:
+                    item = QTreeWidgetItem(self.no_db, [config_file.stem])
 
-        # get a new config dict
-        new_config = mqu.get_new_config(specification_class, database, doc_file, controller_class)
+                self.db_tree.clearSelection()
+                item.setSelected(True)
 
-        # instantiate controller using config
-        new_controller = controller_class(new_config)
+                self.controller_config_file = config_file
 
-        # open new controller widget
-        self.replace_controller(new_controller)
+                # get a new config dict
+                new_config = mqu.get_new_config(specification_class, database, doc_file, controller_class)
+
+                # instantiate controller using config
+                new_controller = controller_class(new_config)
+
+                # open new controller widget
+                self.replace_controller(new_controller)
+
+                return config_file
+
+        return None
+
+    def save_model(self):
+        try:
+            # check we have a model loaded in the manager
+            if isinstance(self.controller, mc.Controller):
+                config = self.controller.get_config()
+                with open(str(self.controller_config_file), 'w') as fp:
+                    json.dump(config, fp, indent=4)
+                self.controller.saved = True
+
+                print('Saved model configuration to ', str(self.controller_config_file))
+
+                return self.controller_config_file
+            else:
+                print("Nothing to save")
+
+        except Exception as e:
+            self.dialog_critical(str(e))
+
+        return None
+
+    def close_model(self):
+        if self.controller_config_file is not None:
+            choice = None
+            if not self.controller.saved:
+                choice = QMessageBox.question(self, 'Model not saved', "Confirm close?",
+                                              QMessageBox.Yes | QMessageBox.No)
+
+            if choice == QMessageBox.Yes or self.controller.saved:
+                self.replace_controller(QLabel())
+                print('Closed model', self.controller_config_file)
+                return True
+
+        return False
 
     def start_console(self):
         index = self.db_tree.selectedItems()[0]
@@ -152,7 +206,7 @@ class ModelManager(QWidget):
     def set_controller(self, config_file):
         self.controller_config_file = config_file
         if self.parent() is not None:
-            self.parent().setWindowTitle(str(config_file) + ' - molaqt')
+            self.parent().setWindowTitle(config_file.stem + ' - molaqt')
 
         # get configuration
         if config_file.exists():

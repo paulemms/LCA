@@ -157,52 +157,19 @@ class MolaMainWindow(QMainWindow):
             print('Cancelled open database')
 
     def new_model(self):
-        # TODO this should really go into manager class
-        if len(self.manager.db_items) > 0:
-            dialog = md.NewModelDialog(parent=self, db_files=self.manager.db_items.keys())
-            if dialog.exec():
-                name, specification_class, controller_class, database, doc_file = dialog.get_inputs()
-                config_file = self.system['config_path'].joinpath(name + '.json')
-                if config_file.exists():
-                    QMessageBox.about(self, "Error", "Configuration file " + str(config_file.absolute()) +
-                                      " already exists")
-                else:
-                    if database:
-                        item = QTreeWidgetItem(self.manager.db_items[database], [config_file.stem])
-                    else:
-                        item = QTreeWidgetItem(self.manager.no_db, [config_file.stem])
-                    self.manager.db_tree.clearSelection()
-                    item.setSelected(True)
-                    self.manager.new_model(config_file, specification_class, controller_class, database, doc_file)
-                    self.save_model()
+        config_file = self.manager.new_model()
+        if config_file is not None:
+            self.save_model()
 
     def save_model(self):
-        try:
-            if isinstance(self.manager.controller, mc.Controller):
-                # TODO this should go into the Controller/Manager class
-                config = self.manager.controller.get_config()
-                with open(str(self.manager.controller_config_file), 'w') as fp:
-                    json.dump(config, fp, indent=4)
-                self.manager.controller.saved = True
-                self.setWindowTitle(str(self.manager.controller_config_file) + ' - molaqt')
-                print('Saved model configuration to ', str(self.manager.controller_config_file))
-            else:
-                print("Nothing to save")
-
-        except Exception as e:
-            self.dialog_critical(str(e))
+        config_file = self.manager.save_model()
+        if config_file is not None:
+            self.setWindowTitle(config_file.stem + ' - molaqt')
 
     def close_model(self):
-        if self.manager.controller_config_file is not None:
-            choice = None
-            if not self.manager.controller.saved:
-                choice = QMessageBox.question(self, 'Model not saved', "Confirm close?",
-                                              QMessageBox.Yes | QMessageBox.No)
-
-            if choice == QMessageBox.Yes or self.manager.controller.saved:
-                self.manager.replace_controller(QLabel())
-                self.setWindowTitle(self.system['app_name'])
-                print('Closed model', self.manager.controller_config_file)
+        is_closed = self.manager.close_model()
+        if is_closed:
+            self.setWindowTitle(self.system['app_name'])
 
     def _create_toolbars(self):
         main_tool_bar = self.addToolBar("Main")
