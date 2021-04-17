@@ -1,17 +1,15 @@
 import io
-import traceback
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QTreeWidget, QTableView, QGridLayout, QTextEdit, \
-    QTreeWidgetItem, QLabel, QHeaderView, QCheckBox, QComboBox
+from PyQt5.QtWidgets import QWidget,  QTreeWidget, QTableView, QGridLayout, QTextEdit, \
+    QTreeWidgetItem, QLabel, QHeaderView, QCheckBox
 import pyomo.environ as pe
 import pandas as pd
 
 import mola.output as mo
 import molaqt.datamodel as md
-import molaqt.dialogs as mdg
 
 
-class ModelViewer(QWidget):
+class ModelView(QWidget):
 
     def __init__(self, lookup):
 
@@ -57,7 +55,7 @@ class ModelViewer(QWidget):
 
     @concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in ModelViewer')
+        print('Concrete model changed in ModelView')
         self._concrete_model = model
         self.run_tree.clear()
         self.run_table.setModel(md.PandasModel(pd.DataFrame()))

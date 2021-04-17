@@ -68,8 +68,8 @@ class ModelBuild(QWidget):
         try:
             config = self.controller.get_config()
             self.concrete_model = mb.build_instance(config, self.controller.spec.settings)
-            if self.controller.model_run is not None:
-                self.controller.model_run.concrete_model = self.concrete_model
+            if self.controller.model_solve is not None:
+                self.controller.model_solve.concrete_model = self.concrete_model
             self.build_list.clear()
             self.build_list.addItems(self.build_items)
             print('Build completed')

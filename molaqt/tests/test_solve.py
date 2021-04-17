@@ -11,14 +11,14 @@ import mola.dataimport as di
 import mola.dataview as dv
 import mola.build as mb
 
-import molaqt.solver as ms
+import molaqt.solve as ms
 import molaqt.utils as mqu
 
 app = QApplication(sys.argv)
 
 
-class ModelSolverTest(TestCase):
-    def test_model_solver(self):
+class ModelSolveTest(TestCase):
+    def test_model_solve(self):
 
         setting = mqu.system_settings(testing=True)
         config_path = setting['config_path'].joinpath('Lemon_Toy_Model.json')
@@ -30,16 +30,16 @@ class ModelSolverTest(TestCase):
         lookup = dv.LookupTables(conn)
 
         # setup a model run
-        model_solver = ms.ModelSolver(lookup)
-        model_solver.concrete_model = instance
-        model_solver.resize(800, 600)
-        model_solver.show()
+        model_solve = ms.ModelSolve(lookup)
+        model_solve.concrete_model = instance
+        model_solve.resize(800, 600)
+        model_solve.show()
 
         # run the model
-        QTest.mouseClick(model_solver.run_button, Qt.LeftButton)
+        QTest.mouseClick(model_solve.run_button, Qt.LeftButton)
 
         if 'IGNORE_EXEC' not in os.environ:
             app.exec()
 
-        self.assertIsInstance(model_solver, ms.ModelSolver)
+        self.assertIsInstance(model_solve, ms.ModelSolve)
 

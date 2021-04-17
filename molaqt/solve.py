@@ -8,14 +8,15 @@ import pyomo.environ as pe
 import molaqt.dialogs as mdg
 
 
-class ModelSolver(QWidget):
+class ModelSolve(QWidget):
 
-    def __init__(self, lookup):
+    def __init__(self, lookup, controller=None):
 
         super().__init__()
         self._concrete_model = None
         self.results = None
         self.lookup = lookup
+        self.controller = controller
 
         # button
         self.run_button = QPushButton("Run")
@@ -90,6 +91,9 @@ class ModelSolver(QWidget):
                 output = io.StringIO()
                 self.results.write(ostream=output)
                 self.log.setText(output.getvalue())
+
+                if self.controller.model_view is not None:
+                    self.controller.model_view.concrete_model = self._concrete_model
             except Exception as e:
                 self.dlg = mdg.critical_error_box("Uncaught exception for model run", str(e), traceback.format_exc())
                 self.dlg.show()

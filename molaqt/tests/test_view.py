@@ -12,14 +12,14 @@ import mola.dataimport as di
 import mola.dataview as dv
 import mola.build as mb
 
-import molaqt.viewer as mv
+import molaqt.view as mv
 import molaqt.utils as mqu
 
 app = QApplication(sys.argv)
 
 
 class ModelViewerTest(TestCase):
-    def test_model_viewer(self):
+    def test_model_view(self):
 
         # load a model and solve it for viewing
         setting = mqu.system_settings(testing=True)
@@ -40,23 +40,23 @@ class ModelViewerTest(TestCase):
         lookup = dv.LookupTables(conn)
 
         # setup a model viewer
-        model_viewer = mv.ModelViewer(lookup)
-        model_viewer.concrete_model = instance
+        model_view = mv.ModelView(lookup)
+        model_view.concrete_model = instance
 
-        model_viewer.resize(800, 600)
-        model_viewer.show()
+        model_view.resize(800, 600)
+        model_view.show()
 
         # go through each variable and click on it
-        model_viewer.run_tree.expandAll()
-        variables = model_viewer.run_tree.topLevelItem(0)
+        model_view.run_tree.expandAll()
+        variables = model_view.run_tree.topLevelItem(0)
         for c in range(variables.childCount()):
             v = variables.child(c)
             print(v.text(0))
-            rect = model_viewer.run_tree.visualItemRect(v)
-            QTest.mouseClick(model_viewer.run_tree.viewport(), Qt.LeftButton, Qt.NoModifier, rect.center())
+            rect = model_view.run_tree.visualItemRect(v)
+            QTest.mouseClick(model_view.run_tree.viewport(), Qt.LeftButton, Qt.NoModifier, rect.center())
 
         if 'IGNORE_EXEC' not in os.environ:
             app.exec()
 
-        self.assertIsInstance(model_viewer, mv.ModelViewer)
+        self.assertIsInstance(model_view, mv.ModelView)
 

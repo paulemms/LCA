@@ -6,7 +6,8 @@ import mola.dataview as dv
 import mola.build as mb
 import mola.utils as mu
 import molaqt.build as mqb
-import molaqt.run as mr
+import molaqt.solve as ms
+import molaqt.view as mv
 import molaqt.widgets as mw
 
 
@@ -81,8 +82,9 @@ class CustomController(Controller):
                                            self.spec, self.lookup, self.conn)
         p = {k: v for k, v in self.parameters.items() if k != 'J'}
         self.parameters_editor = mw.ParametersEditor(self.sets, p, self.spec, self.lookup)
-        self.model_run = mr.ModelRun(self.lookup)
         self.model_build = mqb.ModelBuild(self)
+        self.model_solve = ms.ModelSolve(self.lookup, controller=self)
+        self.model_view = mv.ModelView(self.lookup)
 
         # initialize tab screen
         self.tabs = QTabWidget()
@@ -100,7 +102,8 @@ class CustomController(Controller):
         self.tabs.addTab(self.process_flow, "Processes and Flows")
         self.tabs.addTab(self.parameters_editor, "Parameters")
         self.tabs.addTab(self.model_build, "Build")
-        self.tabs.addTab(self.model_run, "Run")
+        self.tabs.addTab(self.model_solve, "Solve")
+        self.tabs.addTab(self.model_view, "View")
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -131,9 +134,9 @@ class StandardController(Controller):
             self.parameters_editor = mw.ParametersEditor(self.sets, self.parameters,
                                                          self.spec, self.lookup)
 
-
-        self.model_run = mr.ModelRun(self.lookup)
         self.model_build = mqb.ModelBuild(self)
+        self.model_solve = ms.ModelSolve(self.lookup, controller=self)
+        self.model_view = mv.ModelView(self.lookup)
 
         # initialize tab screen
         self.tabs = QTabWidget()
@@ -156,7 +159,8 @@ class StandardController(Controller):
             self.tabs.addTab(self.indexed_sets_editor, "Indexed Sets")
         self.tabs.addTab(self.parameters_editor, "Parameters")
         self.tabs.addTab(self.model_build, "Build")
-        self.tabs.addTab(self.model_run, "Run")
+        self.tabs.addTab(self.model_solve, "Solve")
+        self.tabs.addTab(self.model_view, "View")
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
