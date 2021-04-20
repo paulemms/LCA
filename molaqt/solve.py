@@ -92,8 +92,8 @@ class ModelSolve(QWidget):
                 self.results.write(ostream=output)
                 self.log.setText(output.getvalue())
 
-                if self.controller.model_view is not None:
-                    self.controller.model_view.concrete_model = self._concrete_model
+                if self.controller.model_view_manager is not None:
+                    self.controller.model_view_manager.concrete_model = self._concrete_model
             except Exception as e:
                 self.dlg = mdg.critical_error_box("Uncaught exception for model run", str(e), traceback.format_exc())
                 self.dlg.show()

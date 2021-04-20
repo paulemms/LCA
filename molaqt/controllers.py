@@ -84,7 +84,7 @@ class CustomController(Controller):
         self.parameters_editor = mw.ParametersEditor(self.sets, p, self.spec, self.lookup)
         self.model_build = mqb.ModelBuild(self)
         self.model_solve = ms.ModelSolve(self.lookup, controller=self)
-        self.model_view = mv.ModelView(self.lookup)
+        self.model_view_manager = mv.ModelViewManager(self.lookup)
 
         # initialize tab screen
         self.tabs = QTabWidget()
@@ -103,7 +103,7 @@ class CustomController(Controller):
         self.tabs.addTab(self.parameters_editor, "Parameters")
         self.tabs.addTab(self.model_build, "Build")
         self.tabs.addTab(self.model_solve, "Solve")
-        self.tabs.addTab(self.model_view, "View")
+        self.tabs.addTab(self.model_view_manager, "View")
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -136,7 +136,7 @@ class StandardController(Controller):
 
         self.model_build = mqb.ModelBuild(self)
         self.model_solve = ms.ModelSolve(self.lookup, controller=self)
-        self.model_view = mv.ModelView(self.lookup)
+        self.model_view_manager = mv.ModelViewManager(self.lookup)
 
         # initialize tab screen
         self.tabs = QTabWidget()
@@ -160,7 +160,7 @@ class StandardController(Controller):
         self.tabs.addTab(self.parameters_editor, "Parameters")
         self.tabs.addTab(self.model_build, "Build")
         self.tabs.addTab(self.model_solve, "Solve")
-        self.tabs.addTab(self.model_view, "View")
+        self.tabs.addTab(self.model_view_manager, "View")
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

@@ -1,7 +1,10 @@
+"""
+Module to present Qt views of a concrete pyomo model from a Specification object
+"""
 import io
 
-from PyQt5.QtWidgets import QWidget,  QTreeWidget, QTableView, QGridLayout, QTextEdit, \
-    QTreeWidgetItem, QLabel, QHeaderView, QCheckBox
+from PyQt5.QtWidgets import QWidget,  QTreeWidget, QTableView, QGridLayout, \
+    QTreeWidgetItem, QLabel, QHeaderView, QCheckBox, QComboBox
 import pyomo.environ as pe
 import pandas as pd
 
@@ -9,7 +12,10 @@ import mola.output as mo
 import molaqt.datamodel as md
 
 
-class ModelView(QWidget):
+class ModelViewManager(QWidget):
+    """
+    Qt widget to select the viewer object
+    """
 
     def __init__(self, lookup):
 
@@ -17,6 +23,71 @@ class ModelView(QWidget):
         self._concrete_model = None
         self.results = None
         self.lookup = lookup
+
+        # output viewers
+        self.viewers = {'Tabular Viewer': TabularModelViewer(lookup)}
+        self.current_viewer = self.viewers['Tabular Viewer']
+
+        # viewer combobox
+        self.viewer_combobox = QComboBox()
+        self.viewer_combobox.currentIndexChanged.connect(self.viewer_changed)
+        for view in self.viewers:
+            self.viewer_combobox.addItem(view)
+
+        # arrange widgets in grid
+        self.grid_layout = QGridLayout()
+        self.grid_layout.addWidget(self.viewer_combobox, 0, 0)
+        self.grid_layout.addWidget(self.current_viewer, 1, 0)
+        self.setLayout(self.grid_layout)
+
+    @property
+    def concrete_model(self):
+        return self._concrete_model
+
+    @concrete_model.setter
+    def concrete_model(self, model):
+        print('Concrete model changed in ModelViewManager')
+        self._concrete_model = model
+        # propagate model to viewers
+        for view in self.viewers.values():
+            view.concrete_model = model
+
+    def viewer_changed(self):
+        new_viewer_name = self.viewer_combobox.currentText()
+        print('Viewer changed to', new_viewer_name)
+        # self.grid_layout.replaceWidget(self.current_viewer, self.viewers[new_viewer_name])
+        # self.grid_layout.update()
+        # self.current_viewer = self.viewers[new_viewer_name]
+
+
+class ModelViewer(QWidget):
+    """
+    ModelViewer interface
+    """
+
+    def __init__(self, lookup):
+
+        super().__init__()
+        self._concrete_model = None
+        self.lookup = lookup
+
+    @property
+    def concrete_model(self):
+        return self._concrete_model
+
+    @concrete_model.setter
+    def concrete_model(self, model):
+        self._concrete_model = model
+
+
+class TabularModelViewer(ModelViewer):
+    """
+    Qt widget to show a tabular view of a concrete model
+    """
+
+    def __init__(self, lookup):
+
+        super().__init__(lookup)
 
         # checkboxes
         self.nonzero_checkbox = QCheckBox('Non-zero flows')
@@ -49,13 +120,9 @@ class ModelView(QWidget):
         grid_layout.setColumnStretch(1, 2)
         self.setLayout(grid_layout)
 
-    @property
-    def concrete_model(self):
-        return self._concrete_model
-
-    @concrete_model.setter
+    @ModelViewer.concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in ModelView')
+        print('Concrete model changed in TabularModelViewer')
         self._concrete_model = model
         self.run_tree.clear()
         self.run_table.setModel(md.PandasModel(pd.DataFrame()))
@@ -70,12 +137,8 @@ class ModelView(QWidget):
 
         self.run_tree.expandAll()
 
-    def objective_changed(self):
-        for i, obj in enumerate(self._concrete_model.component_objects(pe.Objective)):
-            if i == self.objective_combobox.currentIndex():
-                obj.activate()
-            else:
-                obj.deactivate()
+    def viewer_changed(self):
+        print('Viewer changed')
 
     def checkbox_clicked(self):
         if self.run_tree:
@@ -104,12 +167,4 @@ class ModelView(QWidget):
                 run_model = md.PandasModel(df)
                 self.run_table.setModel(run_model)
 
-        if item.text(0) == 'Log':
-            self.results.write(ostream=output)
-            self.log = QTextEdit()
-            self.log.setWindowTitle("Log file")
-            self.log.resize(800, 600)
-            self.log.setText(output.getvalue())
-            self.log.show()
         output.close()
-
