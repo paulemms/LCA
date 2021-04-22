@@ -39,6 +39,7 @@ class Specification:
     user_defined_parameters: dict
     controllers: dict
     default_settings: dict
+    viewers: dict
 
     def __init__(self):
         if type(self) is Specification:
@@ -929,10 +930,11 @@ class KondiliSpecification(Specification):
         'V_max': {'index': ['I', 'J'], 'doc': 'Maximum capacity of unit j when used for performing task i'},
     }
     # db parameters need to be constructed explicitly
-    controllers = {"Standard": "StandardController"}
+    controllers = {'Standard': 'StandardController'}
     default_settings = {
     }
     no_db_required = True
+    viewers = {'Tabular Viewer Test': 'TabularModelViewer'}
 
     def __init__(self):
 

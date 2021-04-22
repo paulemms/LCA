@@ -21,6 +21,7 @@ app = QApplication(sys.argv)
 setting = mqu.system_settings(testing=True)
 config_path = setting['config_path'].joinpath('Lemon_Toy_Model.json')
 config = mb.get_config(config_path)
+spec = mb.create_specification(config['specification'])
 instance = mb.build_instance(config)
 for i, obj in enumerate(instance.component_objects(pe.Objective)):
     # activate first objective
@@ -40,7 +41,7 @@ class ModelViewManagerTest(TestCase):
     def test_init(self):
 
         # setup a model viewer
-        model_view_manager = mv.ModelViewManager(lookup)
+        model_view_manager = mv.ModelViewManager(lookup, spec)
         model_view_manager.concrete_model = instance
 
         model_view_manager.resize(800, 600)

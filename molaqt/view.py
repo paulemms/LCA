@@ -2,6 +2,7 @@
 Module to present Qt views of a concrete pyomo model from a Specification object
 """
 import io
+import sys
 
 from PyQt5.QtWidgets import QWidget,  QTreeWidget, QTableView, QGridLayout, \
     QTreeWidgetItem, QLabel, QHeaderView, QCheckBox, QComboBox, QStackedWidget
@@ -12,12 +13,27 @@ import mola.output as mo
 import molaqt.datamodel as md
 
 
+def create_viewer(class_name, lookup, module=sys.modules[__name__]):
+    """
+    Create a Viewer object.
+
+    :param str class_name: name of class
+    :param LookupTables lookup: object
+    :param str module: name of module holding class
+    :return: Viewer object
+    """
+    class_ = getattr(module, class_name)
+    viewer = class_(lookup)
+
+    return viewer
+
+
 class ModelViewManager(QWidget):
     """
     Qt widget to select the viewer object
     """
 
-    def __init__(self, lookup):
+    def __init__(self, lookup, spec):
 
         super().__init__()
         self._concrete_model = None
@@ -25,9 +41,12 @@ class ModelViewManager(QWidget):
         self.lookup = lookup
 
         # output viewers
-        self.viewer = {'Tabular Viewer 1': TabularModelViewer(lookup), 'Tabular Viewer 2': TestModelViewer(lookup)}
+        self.viewer = {'Tabular Viewer': 'TabularModelViewer'}
+        if hasattr(spec, 'viewers'):
+            self.viewer.update(spec.viewers)
         self.stacked_widget = QStackedWidget()
-        for o in self.viewer.values():
+        for cl in self.viewer.values():
+            o = create_viewer(cl, lookup)
             self.stacked_widget.addWidget(o)
 
         # viewer combobox
@@ -50,7 +69,7 @@ class ModelViewManager(QWidget):
         print('Concrete model changed in ModelViewManager')
         self._concrete_model = model
         # propagate model to viewers
-        for view in self.viewer.values():
+        for view in self.stacked_widget.children():
             view.concrete_model = model
 
     def viewer_changed(self, i):

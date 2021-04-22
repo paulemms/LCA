@@ -84,7 +84,7 @@ class CustomController(Controller):
         self.parameters_editor = mw.ParametersEditor(self.sets, p, self.spec, self.lookup)
         self.model_build = mqb.ModelBuild(self)
         self.model_solve = ms.ModelSolve(self.lookup, controller=self)
-        self.model_view_manager = mv.ModelViewManager(self.lookup)
+        self.model_view_manager = mv.ModelViewManager(self.lookup, self.spec)
 
         # initialize tab screen
         self.tabs = QTabWidget()
@@ -136,7 +136,7 @@ class StandardController(Controller):
 
         self.model_build = mqb.ModelBuild(self)
         self.model_solve = ms.ModelSolve(self.lookup, controller=self)
-        self.model_view_manager = mv.ModelViewManager(self.lookup)
+        self.model_view_manager = mv.ModelViewManager(self.lookup, self.spec)
 
         # initialize tab screen
         self.tabs = QTabWidget()
