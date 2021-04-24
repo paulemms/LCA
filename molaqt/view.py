@@ -8,6 +8,9 @@ from PyQt5.QtWidgets import QWidget,  QTreeWidget, QTableView, QGridLayout, \
     QTreeWidgetItem, QLabel, QHeaderView, QCheckBox, QComboBox, QStackedWidget
 import pyomo.environ as pe
 import pandas as pd
+import plotnine as pn
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 import mola.output as mo
 import molaqt.datamodel as md
@@ -179,6 +182,7 @@ class TabularModelViewer(ModelViewer):
                 self.run_table.setModel(run_model)
                 self.run_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
                 self.run_table.resizeRowsToContents()
+
             elif item.parent().text(0) == 'Objective':
                 cpt = self._concrete_model.find_component(item.text(0))
                 self.cpt_doc.setText(cpt.doc)
@@ -189,71 +193,45 @@ class TabularModelViewer(ModelViewer):
         output.close()
 
 
-class TestModelViewer(ModelViewer):
+class StateTaskModelViewer(ModelViewer):
     """
-    Qt widget to show a tabular view of a concrete model
+    Qt widget to show a view of a state task model
     """
 
     def __init__(self, lookup):
 
         super().__init__(lookup)
 
-        # checkboxes
-        self.nonzero_checkbox = QCheckBox('Non-zero flows')
-        self.nonzero_checkbox.toggle()
-        self.nonzero_checkbox.clicked.connect(self.checkbox_clicked)
-        self.distinct_levels_checkbox = QCheckBox('Distinct levels')
-        self.distinct_levels_checkbox.toggle()
-        self.distinct_levels_checkbox.clicked.connect(self.checkbox_clicked)
-
         # add list widget for output
         self.run_tree = QTreeWidget()
         self.run_tree.setHeaderLabels(['Component'])
         self.run_tree.itemClicked.connect(self.run_item_clicked)
 
-        # add table for run content
-        self.run_table = QTableView()
-        self.run_table.setSelectionBehavior(QTableView.SelectRows)
-
-        # component documentation
-        self.cpt_doc = QLabel()
+        # add canvas for plot
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
 
         # arrange widgets in grid
         grid_layout = QGridLayout()
-        grid_layout.addWidget(QLabel('Test'), 0, 0)
+        grid_layout.addWidget(QLabel('State Task'), 0, 0)
         grid_layout.addWidget(self.run_tree, 1, 0)
-        grid_layout.addWidget(self.cpt_doc, 0, 1)
-        grid_layout.addWidget(self.distinct_levels_checkbox, 0, 2)
-        grid_layout.addWidget(self.nonzero_checkbox, 0, 3)
-        grid_layout.addWidget(self.run_table, 1, 1, 2, 3)
+        grid_layout.addWidget(self.canvas, 0, 1, 2, 1)
         grid_layout.setColumnStretch(1, 2)
         self.setLayout(grid_layout)
 
     @ModelViewer.concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in TestModelViewer')
+        print('Concrete model changed in StateTaskModelViewer')
         self._concrete_model = model
         self.run_tree.clear()
-        self.run_table.setModel(md.PandasModel(pd.DataFrame()))
         var_item = QTreeWidgetItem(self.run_tree, ['Variables'])
         for var in self._concrete_model.component_objects(pe.Var, active=True):
             QTreeWidgetItem(var_item, [var.name])
-
-        objective_item = QTreeWidgetItem(self.run_tree, ['Objective'])
-        for obj in self._concrete_model.component_objects(pe.Objective):
-            if obj.active:
-                QTreeWidgetItem(objective_item, [obj.name])
 
         self.run_tree.expandAll()
 
     def viewer_changed(self):
         print('Viewer changed')
-
-    def checkbox_clicked(self):
-        if self.run_tree:
-            item = self.run_tree.selectedItems()
-            if item:
-                self.run_item_clicked(item[0])
 
     def run_item_clicked(self, item):
         print('Run item', item.text(0), 'clicked')
@@ -261,20 +239,25 @@ class TestModelViewer(ModelViewer):
         if item.parent() is not None:
             if item.parent().text(0) == 'Variables':
                 cpt = self._concrete_model.find_component(item.text(0))
-                self.cpt_doc.setText(item.text(0) + ': ' + cpt.doc)
-                df = mo.get_entity(cpt, self.lookup, units=True,
-                                   non_zero=self.nonzero_checkbox.isChecked(),
-                                   distinct_levels=self.distinct_levels_checkbox.isChecked()
-                                   )
-                run_model = md.PandasModel(df)
-                self.run_table.setModel(run_model)
-                self.run_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-                self.run_table.resizeRowsToContents()
-            elif item.parent().text(0) == 'Objective':
-                cpt = self._concrete_model.find_component(item.text(0))
-                self.cpt_doc.setText(cpt.doc)
-                df = mo.get_entity(cpt, self.lookup, units=True)
-                run_model = md.PandasModel(df)
-                self.run_table.setModel(run_model)
+
+                # create ggplot
+                df = mo.get_entity(cpt)
+                if item.text(0) == 'S':
+                    ff = pn.ggplot(df, pn.aes('T', item.text(0))) + pn.ggtitle(cpt.doc) +\
+                         pn.geom_step(pn.aes(color='States'), direction='hv') + pn.facet_wrap('States')
+                elif item.text(0) == 'Q':
+                    ff = pn.ggplot(df, pn.aes('T', item.text(0))) + pn.ggtitle(cpt.doc) +\
+                         pn.geom_step(pn.aes(color='J'), direction='hv') + pn.facet_grid('J~')
+                else:
+                    ff = pn.ggplot(df, pn.aes('T', item.text(0))) + pn.ggtitle(cpt.doc) +\
+                         pn.geom_step(pn.aes(color='J'), direction='hv') + pn.facet_grid('I~')
+                size = self.canvas.size()
+                ff += pn.theme(figure_size=(size.width() / 100, size.height() / 100))
+
+                # update to the new figure
+                fig = ff.draw()
+                self.canvas.figure = fig
+                self.canvas.draw()
 
         output.close()
+

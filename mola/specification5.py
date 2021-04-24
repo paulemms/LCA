@@ -934,7 +934,7 @@ class KondiliSpecification(Specification):
     default_settings = {
     }
     no_db_required = True
-    viewers = {'Tabular Viewer Test': 'TabularModelViewer'}
+    viewers = {'State Task Viewer': 'StateTaskModelViewer'}
 
     def __init__(self):
 
