@@ -131,7 +131,7 @@ class ModelManager(QWidget):
                 print("Nothing to save")
 
         except Exception as e:
-            self.dialog_critical(str(e))
+            md.critical_error_box('Critical error', str(e))
 
         return None
 

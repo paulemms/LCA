@@ -1,9 +1,6 @@
 from pathlib import Path
-import json
 
 import pandas as pd
-
-import mola.build as mb
 
 
 def get_new_config(specification_class, database_path, doc_file, controller_class):

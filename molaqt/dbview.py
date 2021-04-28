@@ -1,6 +1,5 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QTableView, QComboBox, QMainWindow, QPushButton, QLabel
-from PyQt5.QtCore import QAbstractTableModel, Qt
 from PyQt5.QtGui import QIcon
 import mola.dataimport as di
 import mola.dataview as dv

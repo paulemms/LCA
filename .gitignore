@@ -3,3 +3,5 @@
 /notebooks/derby.log
 /mola/resources/db/
 
+/molaqt/dist/
+/molaqt/build/
