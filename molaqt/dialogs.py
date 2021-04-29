@@ -126,6 +126,7 @@ class RenameModelDialog(QDialog):
 
 
 def critical_error_box(title, text, detailed_text=None):
+    print('Error', title, text, detailed_text)
     dlg = QMessageBox()
     dlg.setWindowTitle(title)
     dlg.setText(text)

@@ -1,35 +1,39 @@
-import sys
-import json
+import sys, getopt
 import webbrowser
 from zipfile import ZipFile
 
 from pathlib import Path
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QLabel
-from PyQt5.QtWidgets import QMessageBox, QAction, QTreeWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QAction
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
 import molaqt.qrc_resources
 import molaqt.dbview as dbv
 import molaqt.manager as mt
-import molaqt.dialogs as md
 import molaqt.widgets as mw
 import molaqt.utils as mu
-import molaqt.controllers as mc
 from molaqt.console import QtConsoleWindow
 
 
 class MolaMainWindow(QMainWindow):
     """
-    Main window for the mola qt application. It defines the menus, toolbars and main widget.
+    Main window for the molaqt application. It defines the menus, toolbars and the main widget.
     """
 
-    def __init__(self):
+    def __init__(self, argv):
         super(MolaMainWindow, self).__init__()
+
+        # process arguments
+        opts, args = getopt.getopt(argv, 'd', ['development'])
+        dev = False
+        for opt, arg in opts:
+            if opt in ('-d', '--development'):
+                dev = True
 
         # general configuration
         self.development = False
-        self.system = mu.system_settings(development=True)
+        self.system = mu.system_settings(development=dev)
         self.qt_console = None
 
         self.setGeometry(50, 50, 800, 600)
@@ -182,6 +186,6 @@ class MolaMainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    gui = MolaMainWindow()
+    gui = MolaMainWindow(sys.argv[1:])
     app.aboutToQuit.connect(gui.shutdown_kernel)
     sys.exit(app.exec_())

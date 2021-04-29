@@ -11,7 +11,7 @@ block_cipher = None
 
 a = Analysis(['main.py'],
              pathex=['.'],
-             binaries=[],
+             binaries=[(r'C:\Users\Paul\Anaconda3\envs\LCA\Library\bin\glpsol.exe', '.'), (r'C:\Users\Paul\Anaconda3\envs\LCA\Library\bin\glpk_4_65.dll', '.'),],
              datas=[(r'C:\Users\Paul\Anaconda3\envs\LCA\Lib\site-packages\palettable\colorbrewer\data', r'palettable\colorbrewer\data')],
              hiddenimports=['statsmodels.tsa.statespace._filters._conventional',
                             'pint',
