@@ -415,7 +415,7 @@ class DocWidget(QWidget):
 
         # html content
         self.documentation = QWebEngineView()
-        url = QUrl.fromLocalFile(str(doc_path))
+        url = QUrl.fromLocalFile(str(doc_path.absolute()))
         self.documentation.load(url)
         self.documentation.setZoomFactor(1.0)
 

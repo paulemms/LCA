@@ -68,7 +68,7 @@ class MolaMainWindow(QMainWindow):
         general_specification_v5_action.triggered.connect(
             lambda: self.open_url(doc_file='General_Specification_v5.html'))
         github_home_action = QAction('&Github Home', self)
-        github_home_action.triggered.connect(lambda: self.open_url(url='https://github.com/MGuo-Lab/LCA/wiki'))
+        github_home_action.triggered.connect(lambda: self.open_url(url='https://github.com/paulemms/LCA/wiki'))
         console_action = QAction("Qt Console", self)
         console_action.triggered.connect(self.console)
         self.about_action = QAction(QIcon(":Help.svg"), "&About", self)

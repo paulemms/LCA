@@ -84,7 +84,7 @@ class ModelManager(QWidget):
             self.set_controller(config_file.with_suffix('.json'))
 
     def new_model(self):
-        dialog = md.NewModelDialog(parent=self, db_files=self.db_items.keys())
+        dialog = md.NewModelDialog(system=self.system, parent=self, db_files=self.db_items.keys())
         if dialog.exec():
             name, specification_class, controller_class, database, doc_file = dialog.get_inputs()
             config_file = self.system['config_path'].joinpath(name + '.json')
@@ -106,7 +106,7 @@ class ModelManager(QWidget):
                 new_config = mqu.get_new_config(specification_class, database, doc_file, controller_class)
 
                 # instantiate controller using config
-                new_controller = controller_class(new_config)
+                new_controller = controller_class(new_config, self.system)
 
                 # open new controller widget
                 self.replace_controller(new_controller)
@@ -220,9 +220,9 @@ class ModelManager(QWidget):
             search = re.search("<class '(.*?)\.(.*?)\.(.*?)'>", user_config['controller'])
             class_name = search.group(3)
             class_ = getattr(mc, class_name)
-            new_controller = class_(user_config)
+            new_controller = class_(user_config, self.system)
         else:
-            new_controller = mc.StandardController(user_config)
+            new_controller = mc.StandardController(user_config, self.system)
 
         self.replace_controller(new_controller)
 

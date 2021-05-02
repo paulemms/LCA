@@ -1,6 +1,6 @@
 {
     "settings": {},
-    "doc_path": "Z:\\work\\code\\Python\\LCA\\molaqt\\doc\\AIMMS_Tutorial_Example.html",
+    "doc_name": "AIMMS_Tutorial_Example.html",
     "specification": "<class 'mola.specification5.AIMMSExampleSpecification'>",
     "controller": "<class 'molaqt.controllers.StandardController'>",
     "db_file": null,

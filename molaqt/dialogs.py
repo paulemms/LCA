@@ -8,8 +8,9 @@ import molaqt.controllers as mqc
 
 
 class NewModelDialog(QDialog):
-    def __init__(self, parent=None, db_files=None):
+    def __init__(self, system, parent=None, db_files=None):
         super().__init__(parent)
+        self.system = system
         self.setWindowTitle("New Model")
 
         self.name = QLineEdit(self)
@@ -36,7 +37,7 @@ class NewModelDialog(QDialog):
             self.specification.addItem(spec)
 
         # documentation
-        self.doc_widget = DocWidget()
+        self.doc_widget = DocWidget(self.system)
 
         layout = QFormLayout(self)
         layout.addRow("Name", self.name)
@@ -73,19 +74,25 @@ class NewModelDialog(QDialog):
         current_spec_class = spec_class[self.specification.currentIndex()]
         current_builder_class = self.builder_class[builder_text[self.builder.currentIndex()]]
         current_db = None if self.database.currentText() == 'None' else self.db_files[self.database.currentText()]
+        doc_path = self.doc_widget.path.text()
+        # if the file is in the doc_path store it as a relative file name
+        if Path(doc_path).parent.resolve() == self.system['doc_path'].resolve():
+            doc_path = Path(doc_path).name
+
         return (
             self.name.text(),
             current_spec_class,
             current_builder_class,
             current_db,
-            self.doc_widget.path.text()
+            doc_path
         )
 
 
 class DocWidget(QWidget):
 
-    def __init__(self):
+    def __init__(self, system):
         super().__init__()
+        self.system = system
 
         # widgets
         self.path = QLineEdit()
@@ -100,7 +107,7 @@ class DocWidget(QWidget):
         self.setLayout(layout)
 
     def find_file(self):
-        doc_file = QFileDialog.getOpenFileName(self, 'Open file', str(Path.home()),
+        doc_file = QFileDialog.getOpenFileName(self, 'Open file', str(self.system['doc_path']),
                                                "HTML files (*.html)")
         if doc_file[0] != '':
             self.path.setText(doc_file[0])

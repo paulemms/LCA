@@ -17,10 +17,12 @@ class Controller(QWidget):
     Implementations are derived from this class.
     """
 
-    def __init__(self, user_config):
+    def __init__(self, user_config, system):
         super().__init__()
-        self.saved = False
         self.user_config = user_config
+        self.system = system
+
+        self.saved = False
         self.spec = mb.create_specification(user_config['specification'], user_config['settings'])
 
         # merge user sets and parameters into spec defaults
@@ -54,7 +56,7 @@ class Controller(QWidget):
         self.update_state()
         config = {
             'settings': self.spec.settings,
-            'doc_path': self.user_config['doc_path'],
+            'doc_name': self.user_config['doc_name'],
             'specification': str(self.spec.__class__),
             'controller': self.user_config['controller'],
             'db_file': self.db_file,
@@ -72,9 +74,9 @@ class Controller(QWidget):
 
 class CustomController(Controller):
 
-    def __init__(self, user_config):
+    def __init__(self, user_config, system):
 
-        super().__init__(user_config)
+        super().__init__(user_config, system)
 
         # add widgets for objective, network, build, run
         self.obj = mw.ObjectiveWidget(self.lookup, self.sets['KPI'])
@@ -91,8 +93,8 @@ class CustomController(Controller):
 
         # documentation tab for specification
         self.documentation = None
-        if 'doc_path' in user_config and user_config['doc_path'] != '':
-            doc_path = Path(user_config['doc_path'])
+        if 'doc_name' in user_config and user_config['doc_name'] != '':
+            doc_path = self.system['doc_path'].joinpath(user_config['doc_name'])
             if doc_path.exists():
                 self.documentation = mw.DocWidget(doc_path)
 
@@ -119,9 +121,9 @@ class CustomController(Controller):
 
 class StandardController(Controller):
 
-    def __init__(self, user_config):
+    def __init__(self, user_config, system):
 
-        super().__init__(user_config)
+        super().__init__(user_config, system)
 
         # add widgets for sets, parameters, build, run
         self.sets_editor = mw.SetsEditor(self.sets, self.spec, self.lookup)
@@ -143,8 +145,8 @@ class StandardController(Controller):
 
         # documentation tab for specification
         self.documentation = None
-        if 'doc_path' in user_config and user_config['doc_path'] != '':
-            doc_path = Path(user_config['doc_path'])
+        if 'doc_name' in user_config and user_config['doc_name'] != '':
+            doc_path = self.system['doc_path'].joinpath(user_config['doc_name'])
             if doc_path.exists():
                 self.documentation = mw.DocWidget(doc_path)
 

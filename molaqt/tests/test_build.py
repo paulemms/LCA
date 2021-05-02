@@ -17,7 +17,7 @@ class BuildTest(TestCase):
         setting = mqu.system_settings(testing=True)
         config_path = setting['config_path'].joinpath('test_custom_controller.json')
         new_config = mb.get_config(config_path)
-        controller = mc.CustomController(new_config)
+        controller = mc.CustomController(new_config, setting)
         model_build = mqb.ModelBuild(controller)
         model_build.show()
 

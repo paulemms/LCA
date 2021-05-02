@@ -25,7 +25,7 @@ custom_config = mb.get_config(setting['config_path'].joinpath('test_custom_contr
 
 class TestCustomController(TestCase):
     def test_init(self):
-        custom_controller = mc.CustomController(custom_config)
+        custom_controller = mc.CustomController(custom_config, setting)
         custom_controller.show()
 
         if 'IGNORE_EXEC' not in os.environ:
@@ -35,7 +35,7 @@ class TestCustomController(TestCase):
 
 class TestStandardController(TestCase):
     def test_init(self):
-        standard_controller = mc.StandardController(orange_config)
+        standard_controller = mc.StandardController(orange_config, setting)
         standard_controller.show()
 
         if 'IGNORE_EXEC' not in os.environ:

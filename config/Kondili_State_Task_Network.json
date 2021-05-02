@@ -1,6 +1,6 @@
 {
     "settings": {},
-    "doc_path": "Z:\\work\\code\\Python\\LCA\\molaqt\\doc\\KPS.html",
+    "doc_name": "KPS.html",
     "specification": "<class 'mola.specification5.KondiliSpecification'>",
     "controller": "<class 'molaqt.controllers.StandardController'>",
     "db_file": null,
