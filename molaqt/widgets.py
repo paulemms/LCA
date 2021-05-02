@@ -5,12 +5,12 @@ from functools import partial
 import pandas as pd
 
 from PyQt5.QtCore import Qt, QUrl, pyqtSlot
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QDesktopServices
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QGridLayout, QTableView, QHeaderView, QLineEdit, QDialog, \
     QAbstractItemView, QComboBox, QDialogButtonBox, QPushButton, QWidget, QListWidget, QAction, QLabel, QInputDialog,\
     QVBoxLayout, QSlider, QCheckBox, QApplication, QHBoxLayout, QMessageBox, QSplitter, \
     QSizePolicy
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from pyvis.network import Network
 from tempfile import NamedTemporaryFile
 
@@ -407,6 +407,19 @@ class IndexedSetsEditor(QWidget):
         return d
 
 
+class CustomWebEnginePage(QWebEnginePage):
+    """ Custom WebEnginePage to customize how we handle link navigation """
+    # Store external windows.
+    external_windows = []
+
+    def acceptNavigationRequest(self, url,  _type, isMainFrame):
+        if (_type == QWebEnginePage.NavigationTypeLinkClicked):
+            # Send the URL to the system default URL handler.
+            QDesktopServices.openUrl(url)
+            return False
+        return super().acceptNavigationRequest(url,  _type, isMainFrame)
+
+
 class DocWidget(QWidget):
 
     def __init__(self, doc_path):
@@ -415,8 +428,9 @@ class DocWidget(QWidget):
 
         # html content
         self.documentation = QWebEngineView()
+        self.documentation.setPage(CustomWebEnginePage(self))
         url = QUrl.fromLocalFile(str(doc_path.absolute()))
-        self.documentation.load(url)
+        self.documentation.setUrl(url)
         self.documentation.setZoomFactor(1.0)
 
         # zoom slider
