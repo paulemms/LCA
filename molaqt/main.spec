@@ -43,6 +43,8 @@ a = Analysis(['main.py'],
              cipher=block_cipher,
              noarchive=False)
 a.datas += Tree(r'C:\Users\Paul\Anaconda3\envs\LCA\Lib\site-packages\statsmodels', prefix='statsmodels')
+a.datas += Tree(r'..\mola', prefix='mola')
+a.datas += Tree(r'..\config', prefix='config')
 
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)

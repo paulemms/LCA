@@ -1,11 +1,19 @@
-# Installation
+# Install a release
 
-These are notes on how to install source code and then run mola from your local hard drive. First ensure that you have
+The `molaqt` application is released as a self-contained 7zipped file. The latest release can be 
+found at https://github.com/paulemms/LCA/releases.
+
+To uncompress the 7zip release file, download and install 7zip from https://www.7-zip.org/. The executable 
+to run in the uncompressed directory is called `main.exe`. 
+
+# Installation from source
+
+These are notes on how to install source code and then run `mola` from your local hard drive. First ensure that you have
 the latest versions of Anaconda3, PyCharm and Git installed on your machine.
 
 ## OpenLCA Data
 
-Mola uses an Ecoinvent database converted from Apache Derby to sqlite. The script to do
+`Mola` uses an Ecoinvent database converted from Apache Derby to sqlite. The script to do
 the conversion can be found in the file `mola\scripts\derby_export_import.py`. The paths at the top
  of the file show the expected location of Derby Databases, Derby drivers, and output files. The Derby drivers can be
  found at http://db.apache.org/derby/. You need to have a compatible version of Java installed to make use of the Derby
