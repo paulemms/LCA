@@ -1,14 +1,16 @@
 # Install a release
 
 The `molaqt` application is released as a self-contained 7zipped file. The latest release can be 
-found at https://github.com/paulemms/LCA/releases.
+found at https://github.com/paulemms/LCA/releases. Databases must be downloaded separately. There 
+are simple models included in the release that demonstrate how the application works without a
+database.
 
 To uncompress the 7zip release file, download and install 7zip from https://www.7-zip.org/. The executable 
 to run in the uncompressed directory is called `main.exe`. 
 
 # Installation from source
 
-These are notes on how to install source code and then run `mola` from your local hard drive. First ensure that you have
+This section describes how to install python source code and then run `mola` from your local hard drive. First ensure that you have
 the latest versions of Anaconda3, PyCharm and Git installed on your machine.
 
 ## OpenLCA Data
