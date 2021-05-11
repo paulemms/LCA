@@ -36,12 +36,12 @@
                 "Feed A"
             ],
             "Reaction 1": [
-                "Feed C",
-                "Feed B"
+                "Feed B",
+                "Feed C"
             ],
             "Reaction 2": [
-                "Int BC",
-                "Hot A"
+                "Hot A",
+                "Int BC"
             ],
             "Reaction 3": [
                 "Int AB",
@@ -66,8 +66,8 @@
                 "Impure E"
             ],
             "Separation": [
-                "Int AB",
-                "Product 2"
+                "Product 2",
+                "Int AB"
             ]
         },
         "KI": {
@@ -75,16 +75,16 @@
                 "Heater"
             ],
             "Reaction 1": [
-                "Reactor 2",
-                "Reactor 1"
+                "Reactor 1",
+                "Reactor 2"
             ],
             "Reaction 2": [
-                "Reactor 2",
-                "Reactor 1"
+                "Reactor 1",
+                "Reactor 2"
             ],
             "Reaction 3": [
-                "Reactor 2",
-                "Reactor 1"
+                "Reactor 1",
+                "Reactor 2"
             ],
             "Separation": [
                 "Still"
@@ -146,6 +146,62 @@
                     "Product 2"
                 ],
                 "value": 0
+            }
+        ],
+        "Cost": [
+            {
+                "index": [
+                    "Feed A"
+                ],
+                "value": 0
+            },
+            {
+                "index": [
+                    "Feed B"
+                ],
+                "value": 0
+            },
+            {
+                "index": [
+                    "Feed C"
+                ],
+                "value": 0
+            },
+            {
+                "index": [
+                    "Hot A"
+                ],
+                "value": -1
+            },
+            {
+                "index": [
+                    "Int BC"
+                ],
+                "value": -1
+            },
+            {
+                "index": [
+                    "Int AB"
+                ],
+                "value": -1
+            },
+            {
+                "index": [
+                    "Impure E"
+                ],
+                "value": -1
+            },
+            {
+                "index": [
+                    "Product 1"
+                ],
+                "value": 10
+            },
+            {
+                "index": [
+                    "Product 2"
+                ],
+                "value": 10
             }
         ],
         "C": [
@@ -244,17 +300,17 @@
             },
             {
                 "index": [
-                    "Int AB",
-                    "Separation"
-                ],
-                "value": 2
-            },
-            {
-                "index": [
                     "Product 2",
                     "Separation"
                 ],
                 "value": 1
+            },
+            {
+                "index": [
+                    "Int AB",
+                    "Separation"
+                ],
+                "value": 2
             }
         ],
         "rho": [
@@ -267,13 +323,6 @@
             },
             {
                 "index": [
-                    "Feed C",
-                    "Reaction 1"
-                ],
-                "value": 0.5
-            },
-            {
-                "index": [
                     "Feed B",
                     "Reaction 1"
                 ],
@@ -281,10 +330,10 @@
             },
             {
                 "index": [
-                    "Int BC",
-                    "Reaction 2"
+                    "Feed C",
+                    "Reaction 1"
                 ],
-                "value": 0.6
+                "value": 0.5
             },
             {
                 "index": [
@@ -292,6 +341,13 @@
                     "Reaction 2"
                 ],
                 "value": 0.4
+            },
+            {
+                "index": [
+                    "Int BC",
+                    "Reaction 2"
+                ],
+                "value": 0.6
             },
             {
                 "index": [
@@ -353,17 +409,17 @@
             },
             {
                 "index": [
-                    "Int AB",
-                    "Separation"
-                ],
-                "value": 0.1
-            },
-            {
-                "index": [
                     "Product 2",
                     "Separation"
                 ],
                 "value": 0.9
+            },
+            {
+                "index": [
+                    "Int AB",
+                    "Separation"
+                ],
+                "value": 0.1
             }
         ],
         "V_min": [
@@ -377,42 +433,42 @@
             {
                 "index": [
                     "Reaction 1",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
                 "value": 0
             },
             {
                 "index": [
                     "Reaction 2",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
                 "value": 0
             },
             {
                 "index": [
                     "Reaction 3",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
                 "value": 0
             },
             {
                 "index": [
                     "Reaction 1",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
                 "value": 0
             },
             {
                 "index": [
                     "Reaction 2",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
                 "value": 0
             },
             {
                 "index": [
                     "Reaction 3",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
                 "value": 0
             },
@@ -435,44 +491,44 @@
             {
                 "index": [
                     "Reaction 1",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
-                "value": 50
+                "value": 80
             },
             {
                 "index": [
                     "Reaction 2",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
-                "value": 50
+                "value": 80
             },
             {
                 "index": [
                     "Reaction 3",
-                    "Reactor 2"
+                    "Reactor 1"
                 ],
-                "value": 50
+                "value": 80
             },
             {
                 "index": [
                     "Reaction 1",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
-                "value": 80
+                "value": 50
             },
             {
                 "index": [
                     "Reaction 2",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
-                "value": 80
+                "value": 50
             },
             {
                 "index": [
                     "Reaction 3",
-                    "Reactor 1"
+                    "Reactor 2"
                 ],
-                "value": 80
+                "value": 50
             },
             {
                 "index": [

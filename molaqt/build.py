@@ -73,12 +73,14 @@ class ModelBuild(QWidget):
             self.build_list.clear()
             self.build_list.addItems(self.build_items)
             print('Build completed')
+            return True
         except ValueError as e:
             self.dialog_critical("Unable to find data in database", str(e), traceback.format_exc())
         except UnitsError as e:
             self.dialog_critical("Unit conversion error", str(e), traceback.format_exc())
         except Exception as e:
             self.dialog_critical("Uncaught exception for model build", str(e), traceback.format_exc())
+        return False
 
     def build_item_clicked(self, item):
         print('Build item', item.text(), 'clicked')
@@ -110,5 +112,4 @@ class ModelBuild(QWidget):
         details_box.setFixedSize(600, 400)
         dlg.setIcon(QMessageBox.Critical)
         dlg.show()
-
 

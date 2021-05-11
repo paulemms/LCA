@@ -151,7 +151,9 @@ class StandardController(Controller):
                 self.documentation = mw.DocWidget(doc_path)
 
         # high-level configuration
-        self.configure = mw.ConfigurationWidget(self.spec)
+        self.configure = None
+        if self.spec.default_settings:
+            self.configure = mw.ConfigurationWidget(self.spec)
 
         # Add tabs
         self.tabs.addTab(self.documentation, "Documentation")

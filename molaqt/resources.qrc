@@ -6,5 +6,7 @@
     <file alias="Save.svg">resources/Save.svg</file>
     <file alias="Library.svg">resources/Library.svg</file>
     <file alias="Help.svg">resources/Help.svg</file>
+    <file alias="Build.svg">resources/Developer.svg</file>
+    <file alias="Run.svg">resources/Play.svg</file>
 </qresource>
 </RCC>

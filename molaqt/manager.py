@@ -149,6 +149,20 @@ class ModelManager(QWidget):
 
         return False
 
+    def build_model(self):
+        if isinstance(self.controller, mc.Controller):
+            # TODO: this requires the controller to have a model_build widget and button clicked method
+            if hasattr(self.controller, 'model_build') and hasattr(self.controller.model_build, 'build_button_clicked'):
+                ok = self.controller.model_build.build_button_clicked()
+                return ok
+
+    def run_model(self):
+        if isinstance(self.controller, mc.Controller):
+            # TODO: this requires the controller to have a model_solve widget and button clicked method
+            if hasattr(self.controller, 'model_solve') and hasattr(self.controller.model_solve, 'run_button_clicked'):
+                ok = self.controller.model_solve.run_button_clicked()
+                return ok
+
     def start_console(self):
         index = self.db_tree.selectedItems()[0]
         self.qt_console = QtConsoleWindow(manager=self)

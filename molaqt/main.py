@@ -39,7 +39,7 @@ class MolaMainWindow(QMainWindow):
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle(self.system['app_name'])
         self.setWindowIcon(QIcon(":python-logo.png"))
-        # self.statusBar()
+        self.statusBar()
 
         # model configuration
         self.new_model_action = QAction(QIcon(":New.svg"), "&New ...", self)
@@ -48,6 +48,12 @@ class MolaMainWindow(QMainWindow):
         self.save_model_action = QAction(QIcon(":Save.svg"), "&Save", self)
         self.save_model_action.setShortcut("Ctrl+S")
         self.save_model_action.triggered.connect(self.save_model)
+        self.build_model_action = QAction(QIcon(":Build.svg"), "&Build", self)
+        self.build_model_action.setShortcut("Ctrl+B")
+        self.build_model_action.triggered.connect(self.build_model)
+        self.run_model_action = QAction(QIcon(":Run.svg"), "&Run", self)
+        self.run_model_action.setShortcut("Ctrl+R")
+        self.run_model_action.triggered.connect(self.run_model)
         close_model_action = QAction("&Close", self)
         close_model_action.triggered.connect(self.close_model)
         exit_action = QAction("&Exit", self)
@@ -107,7 +113,7 @@ class MolaMainWindow(QMainWindow):
 
     def open_url(self, doc_file=None, url=None):
         if doc_file:
-            url = self.system['doc_path'].joinpath(doc_file).resolve().as_uri()
+            url = self.system['system_doc_path'].joinpath(doc_file).resolve().as_uri()
         webbrowser.open(url, new=2)  # new tab
 
     def about(self):
@@ -169,6 +175,17 @@ class MolaMainWindow(QMainWindow):
         config_file = self.manager.save_model()
         if config_file is not None:
             self.setWindowTitle(config_file.stem + ' - molaqt')
+            self.statusBar().showMessage('Saved model to ' + str(config_file), 4000)
+
+    def build_model(self):
+        ok = self.manager.build_model()
+        if ok:
+            self.statusBar().showMessage('Built model', 4000)
+
+    def run_model(self):
+        ok = self.manager.run_model()
+        if ok:
+            self.statusBar().showMessage('Solved model', 4000)
 
     def close_model(self):
         is_closed = self.manager.close_model()
@@ -183,6 +200,10 @@ class MolaMainWindow(QMainWindow):
         main_tool_bar.addAction(self.open_db_action)
         main_tool_bar.addAction(self.about_action)
 
+        model_tool_bar = self.addToolBar("Model")
+        model_tool_bar.setIconSize(QSize(24, 24))
+        model_tool_bar.addAction(self.build_model_action)
+        model_tool_bar.addAction(self.run_model_action)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -23,6 +23,7 @@ def system_settings(development=False, testing=False):
     d['home_path'] = Path.home().joinpath(d['app_name'])
     d['home_path'].mkdir(parents=True, exist_ok=True)
     d['data_path'] = Path('C:/data/openlca/sqlite/system')
+    d['system_doc_path'] = Path('./doc')
     if testing:
         d['config_path'] = Path('../../config/')
         d['doc_path'] = Path('../../molaqt/doc/')
