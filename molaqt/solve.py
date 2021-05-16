@@ -1,3 +1,4 @@
+import logging
 import io
 import traceback
 
@@ -59,7 +60,7 @@ class ModelSolve(QWidget):
 
     @concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in ModelRun')
+        logging.info('Concrete model changed in ModelRun')
         self._concrete_model = model
         self.objectives = {}
         self.objective_combobox.clear()
@@ -79,10 +80,10 @@ class ModelSolve(QWidget):
                 obj.deactivate()
 
     def solver_changed(self):
-        print('Solver changed')
+        logging.info('Solver changed')
 
     def run_button_clicked(self):
-        print('Run button clicked')
+        logging.info('Run button clicked')
         if self._concrete_model is not None:
             opt = pe.SolverFactory("glpk")
 
@@ -99,6 +100,6 @@ class ModelSolve(QWidget):
                 self.dlg = mdg.critical_error_box("Uncaught exception for model run", str(e), traceback.format_exc())
                 self.dlg.show()
         else:
-            print("No successful build")
+            logging.info("No successful build")
         return False
 

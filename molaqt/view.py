@@ -1,6 +1,7 @@
 """
 Module to present Qt views of a concrete pyomo model from a Specification object
 """
+import logging
 import io
 import sys
 
@@ -69,7 +70,7 @@ class ModelViewManager(QWidget):
 
     @concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in ModelViewManager')
+        logging.info('Concrete model changed in ModelViewManager')
         self._concrete_model = model
         # propagate model to viewers
         for view in self.stacked_widget.children():
@@ -77,7 +78,7 @@ class ModelViewManager(QWidget):
 
     def viewer_changed(self, i):
         new_viewer_name = self.viewer_combobox.currentText()
-        print('Viewer changed to', new_viewer_name)
+        logging.info('Viewer changed to %s' % new_viewer_name)
         self.stacked_widget.setCurrentIndex(i)
 
 
@@ -143,7 +144,7 @@ class TabularModelViewer(ModelViewer):
 
     @ModelViewer.concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in TabularModelViewer')
+        logging.info('Concrete model changed in TabularModelViewer')
         self._concrete_model = model
         self.run_tree.clear()
         self.run_table.setModel(md.PandasModel(pd.DataFrame()))
@@ -159,7 +160,7 @@ class TabularModelViewer(ModelViewer):
         self.run_tree.expandAll()
 
     def viewer_changed(self):
-        print('Viewer changed')
+        logging.info('Viewer changed')
 
     def checkbox_clicked(self):
         if self.run_tree:
@@ -168,7 +169,7 @@ class TabularModelViewer(ModelViewer):
                 self.run_item_clicked(item[0])
 
     def run_item_clicked(self, item):
-        print('Run item', item.text(0), 'clicked')
+        logging.info('Run item %s clicked' % item.text(0))
         output = io.StringIO()
         if item.parent() is not None:
             if item.parent().text(0) == 'Variables':
@@ -221,7 +222,7 @@ class StateTaskModelViewer(ModelViewer):
 
     @ModelViewer.concrete_model.setter
     def concrete_model(self, model):
-        print('Concrete model changed in StateTaskModelViewer')
+        logging.info('Concrete model changed in StateTaskModelViewer')
         self._concrete_model = model
         self.run_tree.clear()
         var_item = QTreeWidgetItem(self.run_tree, ['Variables'])
@@ -231,10 +232,10 @@ class StateTaskModelViewer(ModelViewer):
         self.run_tree.expandAll()
 
     def viewer_changed(self):
-        print('Viewer changed')
+        logging.info('Viewer changed')
 
     def run_item_clicked(self, item):
-        print('Run item', item.text(0), 'clicked')
+        logging.info('Run item %s clicked' % item.text(0))
         output = io.StringIO()
         if item.parent() is not None:
             if item.parent().text(0) == 'Variables':

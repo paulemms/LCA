@@ -1,3 +1,4 @@
+import logging
 import traceback
 import io
 from contextlib import redirect_stdout
@@ -49,7 +50,7 @@ class ModelBuild(QWidget):
         model = self.build_table.model()
         cpt_idx = self.build_table.selectedIndexes()
         cpt_name = model.data(cpt_idx[0])
-        print('Build table clicked for cpt', cpt_name)
+        logging.info('Build table clicked for cpt %s' % cpt_name)
 
         with io.StringIO() as buf, redirect_stdout(buf):
             if self.concrete_model.component(cpt_name):
@@ -64,7 +65,7 @@ class ModelBuild(QWidget):
         self.cpt_widget.show()
 
     def build_button_clicked(self):
-        print('Build started')
+        logging.info('Build started')
         try:
             config = self.controller.get_config()
             self.concrete_model = mb.build_instance(config, self.controller.spec.settings)
@@ -72,7 +73,7 @@ class ModelBuild(QWidget):
                 self.controller.model_solve.concrete_model = self.concrete_model
             self.build_list.clear()
             self.build_list.addItems(self.build_items)
-            print('Build completed')
+            logging.info('Build completed')
             return True
         except ValueError as e:
             self.dialog_critical("Unable to find data in database", str(e), traceback.format_exc())
@@ -83,7 +84,7 @@ class ModelBuild(QWidget):
         return False
 
     def build_item_clicked(self, item):
-        print('Build item', item.text(), 'clicked')
+        logging.info('Build item %s clicked' % item.text())
         if self.concrete_model is not None:
             if item.text() == 'Sets':
                 df = mo.get_sets_frame(self.concrete_model)

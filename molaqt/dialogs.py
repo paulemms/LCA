@@ -1,3 +1,7 @@
+"""
+A collection of Qt Dialogs for MolaQT
+"""
+import logging
 from pathlib import Path
 
 from PyQt5.QtWidgets import QDialog, QLineEdit, QDialogButtonBox, QFormLayout, QFileDialog
@@ -53,7 +57,7 @@ class NewModelDialog(QDialog):
     def specification_changed(self, index):
         spec_name = list(self.specifications.keys())
         spec_class = list(self.specifications.values())
-        print("Specification changed to", spec_name[index])
+        logging.info("Specification changed to %s" % spec_name[index])
 
         # populate builder dropdown
         self.builder.clear()
@@ -133,7 +137,7 @@ class RenameModelDialog(QDialog):
 
 
 def critical_error_box(title, text, detailed_text=None):
-    print('Error', title, text, detailed_text)
+    logging.info('Error %s %s %s' % (title, text, detailed_text))
     dlg = QMessageBox()
     dlg.setWindowTitle(title)
     dlg.setText(text)

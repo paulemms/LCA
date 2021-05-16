@@ -1,3 +1,7 @@
+"""
+Qtconsole for molaqt
+"""
+import time
 import json
 from tempfile import NamedTemporaryFile
 from pathlib import Path
@@ -16,6 +20,7 @@ def make_jupyter_widget_with_kernel():
     """
     kernel_manager = QtKernelManager(kernel_name=USE_KERNEL)
     kernel_manager.start_kernel()
+    time.sleep(4)
 
     kernel_client = kernel_manager.client()
     kernel_client.start_channels()
@@ -36,6 +41,7 @@ class QtConsoleWindow(QtWidgets.QMainWindow):
 
         self.jupyter_widget = make_jupyter_widget_with_kernel()
         self.kc = self.jupyter_widget.kernel_client
+
         self.kc.execute('import mola.build as mb')
         self.setCentralWidget(self.jupyter_widget)
 
@@ -51,7 +57,7 @@ class QtConsoleWindow(QtWidgets.QMainWindow):
         main_tool_bar.addWidget(run)
 
     def get_config_clicked(self):
-        if self.manager is not None and not isinstance(self.manager.controller, QtWidgets.QLabel):
+        if self.manager is not None and self.manager.is_model_loaded():
             config = self.manager.controller.get_config()
             config_json = NamedTemporaryFile(suffix='.json', delete=False)
             with open(config_json.name, 'w') as fp:
@@ -65,13 +71,13 @@ class QtConsoleWindow(QtWidgets.QMainWindow):
             self.kc.execute("'Model not loaded'")
 
     def build_clicked(self):
-        if self.manager is not None and not isinstance(self.manager.controller, QtWidgets.QLabel):
+        if self.manager is not None and self.manager.is_model_loaded():
             self.kc.execute(r'model = mb.build_instance(cfg)')
             self.kc.execute("print()", silent=True)
             self.kc.execute("'Concrete model available as object model'")
 
     def run_clicked(self):
-        if self.manager is not None and not isinstance(self.manager.controller, QtWidgets.QLabel):
+        if self.manager is not None and self.manager.is_model_loaded():
             self.kc.execute("import pyomo.environ as pe")
             self.kc.execute("opt = pe.SolverFactory('glpk')")
             self.kc.execute("results = opt.solve(model)")

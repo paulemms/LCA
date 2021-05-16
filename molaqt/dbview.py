@@ -1,3 +1,4 @@
+import logging
 import sys
 from PyQt5.QtWidgets import QApplication, QTableView, QComboBox, QMainWindow, QPushButton, QLabel
 from PyQt5.QtGui import QIcon
@@ -56,7 +57,7 @@ class DbView(QMainWindow):
         self.table_view.setModel(model)
 
     def table_changed(self, table_name):
-        print(table_name)
+        logging.info('Table changed to %s' % table_name)
         self.data_iterator = iter(dv.get_table(self.conn, table_name, chunk_size=self.chunk_size))
         self.df = next(self.data_iterator)
         model = md.PandasModel(self.df)

@@ -1,4 +1,6 @@
-import sys, getopt
+import sys
+import getopt
+import logging
 import webbrowser
 from zipfile import ZipFile
 
@@ -146,7 +148,7 @@ class MolaMainWindow(QMainWindow):
             QMessageBox.critical(self, 'Error', 'Database already exists', QMessageBox.Ok)
         else:
             try:
-                print('Uncompressing', zip_name[0], 'to', self.system['data_path'])
+                logging.info('Uncompressing %s to %s' % (zip_name[0], self.system['data_path']))
                 with ZipFile(zip_name[0], 'r') as zr:
                     zr.extractall(self.system['data_path'])
                 self.manager.add_database(db_output_path)
@@ -158,13 +160,13 @@ class MolaMainWindow(QMainWindow):
         sqlite_filter = 'sqlite files (*.sqlite)'
         db_name = QFileDialog.getOpenFileName(self, 'Open database', str(self.system['data_path']),
                                               sqlite_filter)
-        print(db_name)
+        logging.INFO(db_name)
         if db_name[0] != '':
             db_view = dbv.DbView(db_name[0])
             self.db_view.append(db_view)
             db_view.show()
         else:
-            print('Cancelled open database')
+            logging.info('Cancelled open database')
 
     def new_model(self):
         config_file = self.manager.new_model()

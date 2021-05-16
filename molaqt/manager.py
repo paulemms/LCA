@@ -1,4 +1,7 @@
-import sys
+"""
+Manage Mola models in Qt
+"""
+import logging
 import re
 import json
 from pathlib import Path
@@ -30,7 +33,7 @@ class ModelManager(QWidget):
         self.db_tree = QTreeWidget()
         self.db_tree.setHeaderLabels(['Database'])
         self.db_tree.setMinimumWidth(250)
-        self.db_tree.itemDoubleClicked.connect(self.item_double_clicked)
+        self.db_tree.itemDoubleClicked.connect(self.load_model)
 
         # context menu for db tree
         self.db_tree.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -77,10 +80,10 @@ class ModelManager(QWidget):
 
         self.setLayout(box)
 
-    def item_double_clicked(self, item, col):
+    def load_model(self, item, col):
         if self.db_tree.indexOfTopLevelItem(item) == -1:
             config_file = self.system['config_path'].joinpath(item.text(0))
-            print('Loading model', config_file)
+            logging.info('Loading model %s' % config_file)
             self.set_controller(config_file.with_suffix('.json'))
 
     def new_model(self):
@@ -117,18 +120,17 @@ class ModelManager(QWidget):
 
     def save_model(self):
         try:
-            # check we have a model loaded in the manager
-            if isinstance(self.controller, mc.Controller):
+            if self.is_model_loaded():
                 config = self.controller.get_config()
                 with open(str(self.controller_config_file), 'w') as fp:
                     json.dump(config, fp, indent=4)
                 self.controller.saved = True
 
-                print('Saved model configuration to ', str(self.controller_config_file))
+                logging.info('Saved model configuration to %s' % self.controller_config_file)
 
                 return self.controller_config_file
             else:
-                print("Nothing to save")
+                logging.info("Nothing to save")
 
         except Exception as e:
             md.critical_error_box('Critical error', str(e))
@@ -144,27 +146,26 @@ class ModelManager(QWidget):
 
             if choice == QMessageBox.Yes or self.controller.saved:
                 self.replace_controller(QLabel())
-                print('Closed model', self.controller_config_file)
+                logging.info('Closed model %s' % self.controller_config_file)
                 return True
 
         return False
 
     def build_model(self):
-        if isinstance(self.controller, mc.Controller):
+        if self.is_model_loaded():
             # TODO: this requires the controller to have a model_build widget and button clicked method
             if hasattr(self.controller, 'model_build') and hasattr(self.controller.model_build, 'build_button_clicked'):
                 ok = self.controller.model_build.build_button_clicked()
                 return ok
 
     def run_model(self):
-        if isinstance(self.controller, mc.Controller):
+        if self.is_model_loaded():
             # TODO: this requires the controller to have a model_solve widget and button clicked method
             if hasattr(self.controller, 'model_solve') and hasattr(self.controller.model_solve, 'run_button_clicked'):
                 ok = self.controller.model_solve.run_button_clicked()
                 return ok
 
     def start_console(self):
-        index = self.db_tree.selectedItems()[0]
         self.qt_console = QtConsoleWindow(manager=self)
         self.qt_console.show()
 
@@ -183,7 +184,7 @@ class ModelManager(QWidget):
                 db_index.removeChild(index)
                 self.replace_controller(QLabel())
                 self.system['config_path'].joinpath(model_name).with_suffix('.json').unlink()
-                print("Deleted", model_name)
+                logging.info("Deleted %s" % model_name)
             else:
                 pass
 
@@ -200,7 +201,7 @@ class ModelManager(QWidget):
                 if new_config_path.exists():
                     QMessageBox.about(self, "Error", "Configuration file " + str(new_config_path.absolute()) +
                                       " already exists")
-                elif not isinstance(self.controller, QLabel) and not self.controller.saved:
+                elif self.is_model_load() and not self.controller.saved:
                     QMessageBox.about(self, "Error", "Model not saved")
                 else:
                     if self.controller is not None:
@@ -215,19 +216,20 @@ class ModelManager(QWidget):
                     db_index.addChild(qtw)
                     self.db_tree.clearSelection()
                     qtw.setSelected(True)
-                    print("Renamed", model_name, 'to', dialog.new_model_name.text())
+                    logging.info('Renamed {} to {}'.format(model_name, dialog.new_model_name.text()))
 
     def set_controller(self, config_file):
         self.controller_config_file = config_file
         if self.parent() is not None:
             self.parent().setWindowTitle(config_file.stem + ' - molaqt')
 
+        if not config_file.exists():
+            logging.error("Cannot find configuration file %s" % config_file)
+            return False
+
         # get configuration
-        if config_file.exists():
-            with open(config_file) as fp:
-                user_config = json.load(fp)
-        else:
-            sys.exit("Cannot find configuration file")
+        with open(config_file) as fp:
+            user_config = json.load(fp)
 
         # instantiate controller using config if available otherwise default to StandardController
         if 'controller' in user_config:
@@ -239,6 +241,7 @@ class ModelManager(QWidget):
             new_controller = mc.StandardController(user_config, self.system)
 
         self.replace_controller(new_controller)
+        return True
 
     def replace_controller(self, new_controller):
         self.controller.deleteLater()  # ensures Qt webengine process gets shutdown
@@ -251,3 +254,7 @@ class ModelManager(QWidget):
         db_item = QTreeWidgetItem(self.db_tree, [db_path.stem])
         self.db_items[db_path] = db_item
         db_item.setSelected(True)
+
+    def is_model_loaded(self):
+        return not isinstance(self.controller, QLabel)
+

@@ -1,3 +1,4 @@
+import logging
 import webbrowser
 from pathlib import Path
 from functools import partial
@@ -184,7 +185,7 @@ class SetsEditor(QWidget):
                 self.sets[current_set].append(str(text))
                 self.set_table.setModel(md.SetModel(self.sets[current_set]))
                 self.dirty = True
-                print("Added element", text)
+                logging.info("Added element %s" % text)
         else:
             lookup_widget = LookupWidget(self.lookup, current_set)
             ok = lookup_widget.exec_()
@@ -194,7 +195,7 @@ class SetsEditor(QWidget):
                 df = self.lookup.get(current_set, self.sets[current_set])
                 self.set_table.setModel(md.PandasModel(df, is_indexed=True))
                 self.dirty = True
-                print('Added to set', ref_ids)
+                logging.info('Added to set %s' % ref_ids)
 
     def remove_from_set(self):
         current_set = self.sets_list.currentItem().text()
@@ -213,11 +214,11 @@ class SetsEditor(QWidget):
             model = md.SetModel(self.sets[current_set])
         self.dirty = True
         self.set_table.setModel(model)
-        print('Removed from set', rows)
+        logging.info('Removed from set %s' % rows)
 
     def set_clicked(self, item):
         user_set = item.text()
-        print("Clicked set list with", user_set)
+        logging.info("Clicked set list with %s" % user_set)
         self.set_label.setText(user_set + ': ' + self.spec.user_defined_sets[user_set]['doc'])
         model = self.get_model(user_set)
         self.set_table.setModel(model)
@@ -312,7 +313,7 @@ class IndexedSetsEditor(QWidget):
         self.setLayout(grid_layout)
 
     def rebuild_clicked(self):
-        print("Clicked rebuild button")
+        logging.info("Clicked rebuild button")
 
         # get parameters state in index value form
         # index_sets = mu.get_index_value(self.indexed_sets_df, value_key='members')
@@ -344,7 +345,7 @@ class IndexedSetsEditor(QWidget):
             set_df = pd.DataFrame({set_name: new_members})
             self.indexed_set_table.setModel(md.PandasModel(set_df))
             self.dirty = True
-            print("Added element", text)
+            logging.info("Added element %s" % text)
 
     def remove_from_indexed_set(self):
         current_set = self.indexed_sets_list.currentItem().text()
@@ -359,11 +360,11 @@ class IndexedSetsEditor(QWidget):
         model = self.get_model(current_set)
         self.dirty = True
         self.indexed_set_table.setModel(model)
-        print('Removed from set', rows)
+        logging.info('Removed from set %s' % rows)
 
     def indexed_set_clicked(self, item):
         set_name = item.text()
-        print("Clicked set list with", set_name)
+        logging.info("Clicked set list with %s" % set_name)
 
         # update comboboxes
         indices = self.spec.user_defined_indexed_sets[set_name]['index']
@@ -505,7 +506,7 @@ class ParametersEditor(QWidget):
 
     def parameter_clicked(self, item):
         param = item.text()
-        print("Clicked parameter list with", param)
+        logging.info("Clicked parameter list with %s" % param)
         self.set_parameter_widget(param)
 
     def set_parameter_widget(self, param):
@@ -522,7 +523,7 @@ class ParametersEditor(QWidget):
         self.grid_layout.update()
 
     def rebuild_clicked(self):
-        print("Clicked rebuild button")
+        logging.info("Clicked rebuild button")
 
         # get parameters state in index value form
         p = mu.get_index_value(self.par)
@@ -644,7 +645,7 @@ class LinkingParameterWidget(QWidget):
             table_row_num = self.link[link_key]
             link_row = self.table.loc[table_row_num]
             link_ref_ids = self.table['Index'][table_row_num]
-            print('Link', link_key, ':', link_row)
+            logging.info('Link %s:%s' % (link_key, link_row))
 
             # set text from ref id lookup for each combobox
             for i, ref_id in enumerate(link_ref_ids):
@@ -676,7 +677,7 @@ class LinkingParameterWidget(QWidget):
                 self.parameter_table.selectRow(table_row)
                 QMessageBox.information(self, 'Link already exists', "Choose another set combination", QMessageBox.Ok)
             else:
-                print('Adding new link at table row', table_row)
+                logging.info('Adding new link at table row %s' % table_row)
                 self.table.at[table_row, 'Value'] = 1
                 self.link[str(new_link_num)] = table_row
                 self.link_combobox.addItem(str(new_link_num))
@@ -686,13 +687,13 @@ class LinkingParameterWidget(QWidget):
         index = self.link_combobox.currentIndex()
         if index >= 0:
             link_key = list(self.link.keys())[index]
-            print('removing link', link_key)
+            logging.info('Removing link %s' % link_key)
             self.table.at[self.link[link_key], 'Value'] = 0
             del self.link[link_key]
             self.link_combobox.removeItem(index)  # this calls link_changed
 
     def visualise_clicked(self):
-        print('visualising links')
+        logging.info('visualising links')
         parameter_diagram = LinkParameterDiagram(self.table, self.name, self.spec, self.lookup)
         html_path = parameter_diagram.get_html_path()
         url = html_path.resolve().as_uri()
@@ -863,7 +864,7 @@ class ProcessFlow(QWidget):
         self.flows_table.resizeRowsToContents()
 
     def add_material_process_clicked(self):
-        print('Add material process button clicked')
+        logging.info('Add material process button clicked')
         lookup_widget = LookupWidget(self.lookup, 'P_m', "Material Process")
         ok = lookup_widget.exec()
         if ok:
@@ -878,7 +879,7 @@ class ProcessFlow(QWidget):
                         QTreeWidgetItem(self.material_tree, [index, row['PROCESS_NAME'], row['LOCATION_NAME']])
                     )
                 self.dirty = True
-                print('Added material process', new_processes)
+                logging.info('Added material process %s' % new_processes)
 
                 # add new product flows to set and update parameters
                 product_flow_df = mdv.get_process_product_flow(self.conn, new_processes)
@@ -902,7 +903,7 @@ class ProcessFlow(QWidget):
                     if self.material_tree.child(i).text(0) == ref_id:
                         self.material_tree.takeChild(i)
                         break
-                print('Removed ', ref_id)
+                logging.info('Removed %s' % ref_id)
                 # ensure only relevant product flows are in F_m
                 product_flow_df = mdv.get_process_product_flow(self.conn, self.sets['P_m'])
                 flow_ids = product_flow_df.FLOW_REF_ID.to_list()
@@ -915,7 +916,7 @@ class ProcessFlow(QWidget):
                     if self.transport_tree.child(i).text(0) == ref_id:
                         self.transport_tree.takeChild(i)
                         break
-                print('Removed ', ref_id)
+                logging.info('Removed %s' % ref_id)
                 # ensure only relevant product flows are in F_t
                 product_flow_df = mdv.get_process_product_flow(self.conn, self.sets['P_t'])
                 flow_ids = product_flow_df.FLOW_REF_ID.to_list()
@@ -929,7 +930,7 @@ class ProcessFlow(QWidget):
         self.process_tree.resizeColumnToContents(1)
 
     def add_transport_process_clicked(self):
-        print('Add transport process button clicked')
+        logging.info('Add transport process button clicked')
         lookup_widget = LookupWidget(self.lookup, 'P_t', "Transport Process")
         ok = lookup_widget.exec()
         if ok:
@@ -944,7 +945,7 @@ class ProcessFlow(QWidget):
                         QTreeWidgetItem(self.transport_tree, [index, row['PROCESS_NAME'], row['LOCATION_NAME']])
                     )
                 self.dirty = True
-                print('Added transport process', new_processes)
+                logging.info('Added transport process %s' % new_processes)
 
                 # add new product flows to set and update parameters
                 product_flow_df = mdv.get_process_product_flow(self.conn, new_processes)
@@ -979,7 +980,7 @@ class ProcessFlow(QWidget):
         # link processes and flows
         for i, j in enumerate(self.parameters['J']):
             if j['index'] == [fm, pm, ft, pt]:
-                print(i, j['index'])
+                logging.info('%s %s' % (i, j['index']))
                 self.parameters['J'][i] = {'index': j['index'], 'value': link}
 
         # update display
@@ -1057,13 +1058,13 @@ class LinkParameterDiagram:
         if 'nodes' in spec.user_defined_parameters[param]:
             self.node_sets = spec.user_defined_parameters[param]['nodes']
         else:
-            print("Cannot find meta information for parameter", param)
+            logging.info("Cannot find meta information for parameter %s" % param)
             return
         if 'edges' in spec.user_defined_parameters[param]:
             self.edge_sets = spec.user_defined_parameters[param]['edges']
         else:
             self.edge_sets = []
-            print("Cannot find meta information for parameter", param)
+            logging.info("Cannot find meta information for parameter %s" % param)
             # return
 
         # bring the index into the DataFrame and ensure unique column names
@@ -1213,14 +1214,14 @@ class ObjectiveWidget(QWidget):
                 self.kpi_set.append(ref_id)  # in place replace
                 # self.kpi_set.append(ref_id) TODO: only allow one kpi for now
                 self.refresh_objective_tree(self.kpi_set)
-                print('Added to set', ref_id)
+                logging.info('Added to set %s' % ref_id)
 
     def remove_category(self, item):
         if self.objective_tree.indexOfTopLevelItem(item) == -1:
             ref_id = item.text(2)
             self.kpi_set.remove(ref_id)
             self.refresh_objective_tree(self.kpi_set)
-            print('Removed from set', ref_id)
+            logging.info('Removed from set %s' % ref_id)
 
     def refresh_objective_tree(self, kpi_set):
         self.objective_tree.clear()
