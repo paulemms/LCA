@@ -22,6 +22,10 @@ class Output(TestCase):
     instance.Environmental_Cost_Impact.deactivate()
     opt.solve(instance)
 
+    def test_get_sets_frame(self):
+        sets_df = mo.get_sets_frame(self.instance)
+        self.assertGreater(len(sets_df), 0)
+
     def test_get_entity(self):
         # output the variables with and without units
         for v in self.instance.component_objects(pe.Var):

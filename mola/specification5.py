@@ -70,6 +70,7 @@ class Specification:
         return {}
 
 
+# TODO remove the unneeded large db sets from the specification that affect the size of the model and so performance
 class GeneralSpecification(Specification):
     """
     General pyomo specification

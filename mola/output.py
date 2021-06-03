@@ -22,12 +22,18 @@ def get_frame(model, cpt_type, active=None, max_object_size=100, explode=False):
         sys.exit('Type not supported')
 
 
-# TODO remove the unneeded large database sets that affect performance here
 def get_sets_frame(model_instance, active=None):
-    sets_df = pd.DataFrame(
-        ([o.name, o.doc, [], len(o)] for o in model_instance.component_objects(pe.Set, active=active)),
-        columns=['Set', 'Description', 'Index', 'Number of elements']
-    )
+    """
+    Get a summary of the sets in a pyomo model as a DataFrame.
+
+    :param model_instance: concrete pyomo model
+    :param active: active sets only?
+    :return: DataFrame
+    """
+    def get_sets():
+        for o in model_instance.component_objects(pe.Set, active=active):
+            yield [o.name, o.doc, o.index_set().name, len(o)]
+    sets_df = pd.DataFrame(get_sets(), columns=['Set', 'Description', 'Index', 'Number of elements'])
 
     return sets_df
 
