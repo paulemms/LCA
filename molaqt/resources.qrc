@@ -8,5 +8,9 @@
     <file alias="Help.svg">resources/Help.svg</file>
     <file alias="Build.svg">resources/Developer.svg</file>
     <file alias="Run.svg">resources/Play.svg</file>
+    <file alias="Zoom In.svg">resources/Zoom In.svg</file>
+    <file alias="Zoom Out.svg">resources/Zoom Out.svg</file>
+    <file alias="Search.svg">resources/Search.svg</file>
+    <file alias="Cancel.svg">resources/Cancel.svg</file>
 </qresource>
 </RCC>

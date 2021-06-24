@@ -5,12 +5,12 @@ from functools import partial
 
 import pandas as pd
 
-from PyQt5.QtCore import Qt, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt, QUrl, pyqtSlot, QSize
 from PyQt5.QtGui import QIcon, QPixmap, QDesktopServices
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QGridLayout, QTableView, QHeaderView, QLineEdit, QDialog, \
     QAbstractItemView, QComboBox, QDialogButtonBox, QPushButton, QWidget, QListWidget, QAction, QLabel, QInputDialog,\
     QVBoxLayout, QSlider, QCheckBox, QApplication, QHBoxLayout, QMessageBox, QSplitter, \
-    QSizePolicy
+    QSizePolicy, QToolBar
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from pyvis.network import Network
 from tempfile import NamedTemporaryFile
@@ -434,25 +434,60 @@ class DocWidget(QWidget):
         self.documentation.setUrl(url)
         self.documentation.setZoomFactor(1.0)
 
-        # zoom slider
-        self.zoom = QSlider(Qt.Horizontal)
-        self.zoom.setMinimum(25)
-        self.zoom.setMaximum(500)
-        self.zoom.setValue(100)
-        self.zoom.setTickPosition(QSlider.TicksBelow)
-        self.zoom.setTickInterval(25)
-        self.zoom.valueChanged.connect(self.zoom_change)
-        self.zoom_change()
+        # zoom parameters
+        self.size = 100
+        self.interval = 25
+        self.max_size = 500
+        self.min_size = 25
+
+        # toolbar
+        self.toolbar = QToolBar()
+        self.toolbar.setIconSize(QSize(24, 24))
+        self.zoom_out_action = QAction(QIcon(":Zoom Out.svg"), "&Zoom Out", self)
+        self.zoom_out_action.setShortcut("Ctrl++")
+        self.zoom_out_action.triggered.connect(self.zoom_out)
+        self.zoom_in_action = QAction(QIcon(":Zoom In.svg"), "&Zoom In", self)
+        self.zoom_in_action.setShortcut("Ctrl+-")
+        self.zoom_in_action.triggered.connect(self.zoom_in)
+
+        # search
+        self.search_text = QLineEdit(self)
+        # self.search_text_action = QAction(self.search_text, "&Search Text", self)
+        self.find_text_action = QAction(QIcon(":Search.svg"), "&Search", self)
+        self.find_text_action.setShortcut("Ctrl+f")
+        self.find_text_action.triggered.connect(self.find_text)
+        self.search_cancel_action = QAction(QIcon(":Cancel.svg"), "&Search Cancel", self)
+        self.search_cancel_action.setShortcut("Ctrl+c")
+        self.search_cancel_action.triggered.connect(self.search_cancel)
+
+        self.toolbar.addAction(self.zoom_in_action)
+        self.toolbar.addAction(self.zoom_out_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.find_text_action)
+        self.toolbar.addAction(self.search_cancel_action)
+        self.toolbar.addWidget(self.search_text)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.zoom)
+        layout.addWidget(self.toolbar)
         layout.addWidget(self.documentation)
         self.setLayout(layout)
 
-    def zoom_change(self):
-        size = self.zoom.value()
-        self.documentation.page().setZoomFactor(size / 100)
+    def zoom_out(self):
+        if self.size <= self.max_size:
+            self.size += self.interval
+        self.documentation.page().setZoomFactor(self.size / 100)
+
+    def zoom_in(self):
+        if self.size >= self.min_size:
+            self.size -= self.interval
+        self.documentation.page().setZoomFactor(self.size / 100)
+
+    def find_text(self):
+        self.documentation.findText(self.search_text.text())
+
+    def search_cancel(self):
+        self.documentation.findText('')
 
 
 class ParametersEditor(QWidget):
