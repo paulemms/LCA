@@ -12,5 +12,6 @@
     <file alias="Zoom Out.svg">resources/Zoom Out.svg</file>
     <file alias="Search.svg">resources/Search.svg</file>
     <file alias="Cancel.svg">resources/Cancel.svg</file>
+    <file alias="Open.svg">resources/Open.svg</file>
 </qresource>
 </RCC>

@@ -426,6 +426,7 @@ class DocWidget(QWidget):
     def __init__(self, doc_path):
 
         super().__init__()
+        self.doc_path = doc_path
 
         # html content
         self.documentation = QWebEngineView()
@@ -450,9 +451,14 @@ class DocWidget(QWidget):
         self.zoom_in_action.setShortcut("Ctrl+-")
         self.zoom_in_action.triggered.connect(self.zoom_in)
 
+        # open in browser
+        self.open_action = QAction(QIcon(":Open.svg"), "&Open in Browser", self)
+        self.open_action.setShortcut("Ctrl+o")
+        self.open_action.triggered.connect(self.open)
+
         # search
         self.search_text = QLineEdit(self)
-        # self.search_text_action = QAction(self.search_text, "&Search Text", self)
+        self.search_text.setFixedWidth(120)
         self.find_text_action = QAction(QIcon(":Search.svg"), "&Search", self)
         self.find_text_action.setShortcut("Ctrl+f")
         self.find_text_action.triggered.connect(self.find_text)
@@ -463,9 +469,11 @@ class DocWidget(QWidget):
         self.toolbar.addAction(self.zoom_in_action)
         self.toolbar.addAction(self.zoom_out_action)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.open_action)
+        self.toolbar.addSeparator()
         self.toolbar.addAction(self.find_text_action)
-        self.toolbar.addAction(self.search_cancel_action)
         self.toolbar.addWidget(self.search_text)
+        self.toolbar.addAction(self.search_cancel_action)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -488,6 +496,9 @@ class DocWidget(QWidget):
 
     def search_cancel(self):
         self.documentation.findText('')
+
+    def open(self):
+        webbrowser.open(self.doc_path.resolve().as_uri(), new=2)  # new tab
 
 
 class ParametersEditor(QWidget):
